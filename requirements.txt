@@ -1,0 +1,5 @@
+### Pip install requirements file ###
+
+# Basic requirements
+django==2.0
+django-crispy-forms
