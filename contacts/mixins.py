@@ -8,9 +8,10 @@ from django.utils import timezone
 
 class AuditingModel(models.Model):
     """ Fields commonly added to many models to track creation date and user. """
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, editable=False, related_name='%(class)s_created')
-    date_added = models.DateTimeField(auto_now_add=True, editable=False)
-    date_modified = models.DateTimeField(auto_now=True, editable=False)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, editable=False, related_name='%(class)s_created')
+    modified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, editable=False, related_name='%(class)s_modified')
+    created_on = models.DateTimeField(auto_now_add=True, editable=False)
+    modified_on = models.DateTimeField(auto_now=True, editable=False)
 
     class Meta:
         abstract = True
@@ -24,7 +25,7 @@ class AuditingAdminModelMixin(object):
     This should be inherited first in the admin class definition.
     """
     def save_model(self, request, obj, form, change):
-        """ Adds the current user in the created_by or modified_by field."""
+        """ Adds the current user."""
         if not change:
             obj.created_by = request.user
         else:
