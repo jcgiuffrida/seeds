@@ -21,6 +21,7 @@ class Person(AuditingModel):
     sectors = models.ManyToManyField('Sector', blank=True, related_name='people')
     
     city = models.CharField(max_length=50, default='Chicago', blank=True)
+    birthday = models.DateField(blank=True, null=True, help_text='Ignore the year if unknown.')
     personal_email = models.EmailField(default='', blank=True)
     work_email = models.EmailField(default='', blank=True)
     phone_regex = RegexValidator(regex=r'^\d{3}[-.]?\d{3}[-.]?\d{4}$', message="Phone number must be entered in the format 999-999-9999, optionally separated by periods or spaces.")

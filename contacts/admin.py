@@ -17,11 +17,16 @@ auditing_fieldset = (
         ],
     })
 
+class GroupInline(admin.TabularInline):
+    model = Group.people.through
+    extra = 0
+
 class PersonAdmin(AuditingAdminModelMixin, admin.ModelAdmin):
     readonly_fields = auditing_fields
     list_display = ['full_name', 'city', 'company']
     search_fields = ['full_name']
     list_filter = ('sectors', 'city', 'company')
+    inlines = (GroupInline,)
     fieldsets = [
         (None, { 'fields': [
             'first_name', 
@@ -31,6 +36,9 @@ class PersonAdmin(AuditingAdminModelMixin, admin.ModelAdmin):
             'company',
             'sectors',
         ]}), 
+        ('Personal information', { 'fields': [
+            'birthday',
+        ]}),
         ('Contact information', { 'fields': [
             'personal_email',
             'work_email',
