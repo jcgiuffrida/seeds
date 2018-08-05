@@ -1,2 +1,2 @@
 # seeds
-Track contacts
+Track contacts and connections

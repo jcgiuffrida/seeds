@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     # third party apps
     'crispy_forms',
     # my apps
-    'contacts',
+    'seeds',
 ]
 
 MIDDLEWARE = [

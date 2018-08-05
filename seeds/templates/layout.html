@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="theme-color" content="#18bc9c">
+    <meta name="robots" content="noindex">
+    <meta name="referer" content="no-referrer-when-downgrade">
+    <title>{% block title %}{% endblock %} - Seeds</title>
+    
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/bundle.css' %}" />
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/all.js" integrity="sha384-xymdQtn1n3lH2wcu0qhcdaOpQwyoarkgLVxC/wZ5q7h9gHtxICrpcaSUfygqZGOe" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  {% include "navbar.html" %}
+  <div class="main">
+    <div class="col messages">
+      <noscript>
+        <div class="col-xs-12 col-md-10 col-lg-8 alert alert-danger warning" role="alert">
+          <p>Please <a href="http://www.enable-javascript.com/" target="_blank">enable JavaScript</a> to use this site.</p>
+        </div>
+      </noscript>
+      {% if messages %}
+        {% for message in messages %}
+          <div class="col alert alert-{{ message.tags }} warning alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            {{ message|safe }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+
+    {% block content %}{% endblock %}
+    
+    {% include "footer.html" %}
+  </div>
+
+  <script src="{% static 'js/vendor.bundle.js' %}"></script>
+  
+{% block scripts %}
+
+{% endblock %}
+</body>
+</html>

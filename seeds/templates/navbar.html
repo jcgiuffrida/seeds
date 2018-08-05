@@ -1,0 +1,33 @@
+{% load static %}
+<nav class="side-nav">
+  <div class="side-nav__top">
+    <a href="{% url 'home' %}" class="logo">
+      <div class="side-nav__logo">
+        <i class="fas fas-globe"></i>
+      </div>
+    </a>
+    <a href="{% url 'home' %}">
+      <div class="side-nav__item" id="nav-search">
+        <i class="fas fa-search"></i>
+      </div>
+    </a>
+    <a href="{% url 'home' %}">
+      <div class="side-nav__item" id="nav-project">
+        <i class="fas fa-folder"></i>
+      </div>
+    </a>
+  </div>
+  <div class="side-nav__bottom">
+    <div class="side-nav__item dropdown">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <i class="fas fa-user-circle"></i>
+      </button>
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        <a class="dropdown-item" href="{% url 'home' %}">Profile</a>
+        <a class="dropdown-item" href="{% url 'home' %}">Account</a>
+        <div class="dropdown-divider"></div>
+        <a class="dropdown-item" href="{% url 'home' %}">Exit</a>
+      </div>
+    </div>
+  </div>
+</nav>
