@@ -5,7 +5,7 @@ const webpack = require('webpack')
 
 module.exports = {
   entry: {
-    'js': './js/home.js',
+    'js/app': './js/home/app.js',
     'js/vendor': './js/vendor/index.js' // third party scripts, css entry, images
   },
   devtool: 'source-map',
@@ -17,15 +17,14 @@ module.exports = {
     publicPath: '/static/'
   },
   stats: {
-      // make webpack a little less noisy
-      assets: false,
-      chunks: false,
-      modules: false,
-      children: false,
-      hash: false,
-      timings: false,
-      version: false
-    }
+    // make webpack a little less noisy
+    assets: false,
+    chunks: false,
+    modules: false,
+    children: false,
+    hash: false,
+    timings: false,
+    version: false
   },
   mode: 'development',
   module: {
