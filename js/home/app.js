@@ -1,4 +1,7 @@
 const home = (_ => {
+  function init(){
+
+  }
   return {
     init
   }

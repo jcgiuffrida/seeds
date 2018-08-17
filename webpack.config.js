@@ -10,7 +10,7 @@ module.exports = {
   },
   devtool: 'source-map',
   devServer: {
-    port: 3000,
+    port: 3050,
     proxy: {
       '/': 'http://127.0.0.1:5000'
     },

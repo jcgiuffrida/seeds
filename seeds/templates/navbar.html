@@ -1,33 +1,57 @@
-{% load static %}
-<nav class="side-nav">
-  <div class="side-nav__top">
-    <a href="{% url 'home' %}" class="logo">
-      <div class="side-nav__logo">
-        <i class="fas fas-globe"></i>
-      </div>
-    </a>
-    <a href="{% url 'home' %}">
-      <div class="side-nav__item" id="nav-search">
-        <i class="fas fa-search"></i>
-      </div>
-    </a>
-    <a href="{% url 'home' %}">
-      <div class="side-nav__item" id="nav-project">
-        <i class="fas fa-folder"></i>
-      </div>
-    </a>
-  </div>
-  <div class="side-nav__bottom">
-    <div class="side-nav__item dropdown">
-      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-user-circle"></i>
-      </button>
-      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-        <a class="dropdown-item" href="{% url 'home' %}">Profile</a>
-        <a class="dropdown-item" href="{% url 'home' %}">Account</a>
-        <div class="dropdown-divider"></div>
-        <a class="dropdown-item" href="{% url 'home' %}">Exit</a>
-      </div>
-    </div>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="{% url 'home' %}">Seeds</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="#">People</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#">Encounters</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'about' %}">About</a>
+      </li>
+    </ul>
+    
+    {% if user.is_authenticated %}
+      <form id="logoutForm" action="/logout/?next=/" method="post" class="navbar-right">
+        {% csrf_token %}
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown hidden-xs user-links">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" 
+            aria-haspopup="true" aria-expanded="false">
+              <span class="user-name">
+                {{ user.first_name }}
+              </span> <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">
+                <i class="fas fa-id-card"></i><span class="text">Account</span></a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="javascript:document.getElementById('logoutForm').submit()">
+                <i class="fas fa-sign-out"></i><span class="text">Log off</span></a></li>
+            </ul>
+          </li>
+          <!-- On mobile, don't bother with dropdown -->
+          <li class="visible-xs-inline-block">
+            <a href="#">
+              <span class="user-name">
+                {{ user.first_name }}
+              </span>
+            </a>
+          </li>
+          <li role="separator" class="divider visible-xs-inline-block"></li>
+          <li class="visible-xs-inline-block"><a href="javascript:document.getElementById('logoutForm').submit()">
+            <i class="fas fa-sign-out"></i><br>Log off</a></li>
+        </ul>
+      </form>
+    {% else %}
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fas fa-sign-in"></i><br>Sign up / Log in</a></li>
+      </ul>
+    {% endif %}
   </div>
 </nav>
