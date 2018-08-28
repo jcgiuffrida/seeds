@@ -23,8 +23,8 @@ class GroupInline(admin.TabularInline):
 
 class PersonAdmin(AuditingAdminModelMixin, admin.ModelAdmin):
     readonly_fields = auditing_fields
-    list_display = ['full_name', 'city', 'company']
-    search_fields = ['full_name']
+    list_display = ['name', 'city', 'company']
+    search_fields = ['name']
     list_filter = ('sectors', 'city', 'company')
     inlines = (GroupInline,)
     fieldsets = [
