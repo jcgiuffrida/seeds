@@ -6,15 +6,48 @@ from django.db import models
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 
-class AuditingModel(models.Model):
-    """ Fields commonly added to many models to track creation date and user. """
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, editable=False, related_name='%(class)s_created')
-    modified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, editable=False, related_name='%(class)s_modified')
+class UserManager(models.Manager):
+    """Manager to filter objects by the user who created them."""
+    def get_queryset(self):
+        return super(UserManager, self).get_queryset().filter(active=True)
+
+    def all_objects(self):
+        return super(UserManager, self).get_queryset()
+
+    def for_user(self, user):
+        if user.is_authenticated:
+            return self.get_queryset().filter(created_by=user)
+        return self.none()
+
+class BaseModel(models.Model):
+    """
+    Standard model template. 
+
+    Adds a custom manager and fields for auditing, and overrides the save and delete methods.
+    """
+    objects = UserManager()
+
+    active = models.BooleanField(default=True, help_text='Set this to False instead of deleting.')
+
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
+        editable=False, db_index=True, related_name='%(class)s_created')
+    modified_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, 
+        editable=False, related_name='%(class)s_modified')
     created_on = models.DateTimeField(auto_now_add=True, editable=False)
     modified_on = models.DateTimeField(auto_now=True, editable=False)
 
     class Meta:
         abstract = True
+
+    def delete(self, force=True, **kwargs):
+        """Change active to False rather than deleting the object."""
+        if force:
+            return super(AuditingModel, self).delete(**kwargs)
+        elif self.active:
+            self.active = False
+            self.save()
+        return (1, {'Objects': 'set to inactive instead of being deleted'})
+
 
 class AuditingAdminModelMixin(object):
     """Adds auditing tools to the `save_model` method of a model class, in the Django admin.
@@ -25,11 +58,10 @@ class AuditingAdminModelMixin(object):
     This should be inherited first in the admin class definition.
     """
     def save_model(self, request, obj, form, change):
-        """ Adds the current user."""
-        if not change:
-            obj.created_by = request.user
-        else:
+        if change:
             obj.modified_by = request.user
+        else:
+            obj.created_by = request.user
 
         # creates the slug, if the field exists
         ObjectClass = ContentType.objects.get_for_model(obj).model_class()

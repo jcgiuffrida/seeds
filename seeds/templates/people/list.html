@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block title %}People{% endblock %}
+
+{% block content %}
+<div class="col">
+  <h1>People</h1>
+  {% for person in person_list %}
+    <p>{{ person }}</p>
+  {% endfor %}
+</div>
+{% endblock %}

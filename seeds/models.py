@@ -2,23 +2,19 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.urls import reverse
 
-from .mixins import AuditingModel
+from .mixins import BaseModel, UserManager
 
-class UserManager(models.Manager):
-    """Manager to filter objects by the user who created them."""
-    def for_user(self, user):
-        return super(UserManager, self).get_queryset().filter(active=True, created_by=user)
 
-class Person(AuditingModel):
+class Person(BaseModel):
     """Model for a person."""
-    objects = UserManager()
-    
-    active = models.BooleanField(default=True, help_text='Set this to False instead of deleting.')
     first_name = models.CharField(max_length=64, default='', blank=True)
     last_name = models.CharField(max_length=64, default='', blank=True)
     partner = models.OneToOneField('self', on_delete=models.SET_NULL, blank=True, null=True) # TODO limit_choices_to Person.objects.for_user() - and company and sector too
+    slug = models.SlugField(max_length=128, default='', blank=True)
 
     company = models.ForeignKey('Company', on_delete=models.SET_NULL, blank=True, null=True, related_name='people')
     sectors = models.ManyToManyField('Sector', blank=True, related_name='people')
@@ -29,6 +25,7 @@ class Person(AuditingModel):
 
     class Meta:
         verbose_name_plural = 'people'
+        unique_together = ('slug', 'created_by')
 
     @property
     def name(self):
@@ -47,6 +44,8 @@ class Person(AuditingModel):
         return self.name
 
     def save(self, *args, **kwargs):
+        # Update slug
+        
         # If partner removed or changed, need to remove on their side too
         old_partner = None
         if self.id:
@@ -62,24 +61,23 @@ class Person(AuditingModel):
             self.partner.partner = self
             super(Person, self.partner).save()
 
-class Company(AuditingModel):
-    objects = UserManager()
+    def get_absolute_url(self):
+        return reverse('person_detail', self.slug)
 
-    active = models.BooleanField(default=True, help_text='Set this to False instead of deleting.')
+class Company(BaseModel):
     name = models.CharField(max_length=64)
     slug = models.SlugField(max_length=64, unique=True, blank=True)
 
     class Meta:
         verbose_name_plural = 'companies'
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
     
 
-class Group(AuditingModel):
-    objects = UserManager()
-    
-    active = models.BooleanField(default=True, help_text='Set this to False instead of deleting.')
+class Group(BaseModel):
+    """A group of people."""
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=64, unique=True, blank=True)
     about = models.TextField(blank=True)
@@ -93,10 +91,8 @@ class Group(AuditingModel):
         return self.name
 
 
-class Sector(AuditingModel):
-    objects = UserManager()
-
-    active = models.BooleanField(default=True, help_text='Set this to False instead of deleting.')
+class Sector(BaseModel):
+    """A field where people work."""
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=64, unique=True, blank=True)
     description = models.TextField(default='', blank=True)
@@ -108,27 +104,38 @@ class Sector(AuditingModel):
         return self.name
 
 
-class Encounter(AuditingModel):
-    objects = UserManager()
+class ConnectionManager(UserManager):
+    def seeds(self):
+        return super(ConnectionManager, self).get_queryset().filter(reciprocated=False)
+
+class Connection(BaseModel):
+    """A connection, reciprocated or not, with a person."""
+    objects = ConnectionManager()
 
     MODES = (
-        ('in person', 'In person'),
+        (None, '(Select one)'),
+        ('one on one', 'In person (one on one)'),
+        ('in person', 'In person (group)'),
         ('skype', 'Skype'),
         ('phone', 'Phone call'),
         ('email', 'Email'),
         ('text', 'Text'),
     )
-    person = models.ForeignKey(Person, on_delete=models.CASCADE, related_name='encounters')
-    mode = models.CharField(max_length=16, choices=MODES)
+    mode = models.CharField(max_length=16, choices=MODES, blank=False)
     reciprocated = models.BooleanField(default=False)
     date = models.DateField(default=timezone.now)
-    notes = models.TextField()
+    notes = models.TextField(help_text='A summary of the conversation.')
+
+    class Meta:
+        ordering = ('-date', 'mode')
+
+    def __str__(self):
+        return self.mode
+
+    def save(self, *args, **kwargs):
+        """Perform checks."""
+        if not self.reciprocated and self.mode in ['one on one', 'in person', 'skype', 'phone']:
+            raise ValidationError('How can the connection be unreciprocated if it was via {0}?'.format(self.mode))
+        super(Connection, self).save(*args, **kwargs)
 
 
-
-# seeds:
-# - include "culture" - running list of what i've sent them
-# - variable frequency that i should reach out
-# - my siblings
-# - dashboard: # seeds, last week/month, % up to date
-# - track reciprocal contacts? or until they respond i don't reach out

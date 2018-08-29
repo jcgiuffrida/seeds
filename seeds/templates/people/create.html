@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}People{% endblock %}
+
+{% block content %}
+<div class="col">
+  <h1>Add a new person</h1>
+  {% crispy form %}
+</div>
+{% endblock %}
