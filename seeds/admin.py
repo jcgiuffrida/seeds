@@ -4,7 +4,7 @@ from django.contrib import admin
 from .mixins import AuditingAdminModelMixin
 from .models import Person, Company, Group, Sector
 
-auditing_fields = ['active', 'created_by', 'created_on', 'modified_by', 'modified_on']
+auditing_fields = ['active', 'created_by', 'created_on', 'modified_on']
 auditing_fieldset = (
     'Auditing', { 
         'classes': ('collapse',),
@@ -12,7 +12,6 @@ auditing_fieldset = (
             'active',
             'created_by',
             'created_on',
-            'modified_by',
             'modified_on',
         ],
     })
@@ -32,20 +31,18 @@ class PersonAdmin(AuditingAdminModelMixin, admin.ModelAdmin):
             'first_name', 
             'last_name',
             'city',
-            'partner',
-            'company',
-            'sectors',
+            'notes',
+            'slug',
         ]}), 
         ('Personal information', { 'fields': [
+            'partner',
+            'known_via',
+            'company',
+            'sectors',
             'birthday',
         ]}),
         ('Contact information', { 'fields': [
-            'personal_email',
-            'work_email',
-            'personal_phone',
-            'work_phone',
             'address',
-            'other_contact_info',
         ]}),
         auditing_fieldset,
     ]

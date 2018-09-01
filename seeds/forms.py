@@ -16,15 +16,17 @@ class PersonForm(forms.ModelForm):
             Field('first_name', autofocus=""),
             'last_name', 
             'partner',
+            'known_via',
             'company',
             'sectors',
             'city',
             'address',
             'birthday',
-            Submit('submit', 'Add user'),
+            'notes',
+            Submit('submit', 'Save person'),
         )
 
     class Meta:
         model = Person
-        fields = ['first_name', 'last_name', 'partner', 'company', 'sectors', 'city', 'birthday', 
-            'address']
+        fields = ['first_name', 'last_name', 'partner', 'known_via', 'company', 'sectors', 'city', 
+            'birthday', 'address', 'notes']

@@ -6,7 +6,7 @@
 <div class="col">
   <h1>People</h1>
   {% for person in person_list %}
-    <p>{{ person }}</p>
+    <p><a href="{% url 'person_detail' person.slug %}">{{ person }}</a></p>
   {% endfor %}
 </div>
 {% endblock %}

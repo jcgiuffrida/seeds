@@ -1,57 +1,35 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="{% url 'home' %}">Seeds</a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-3">
+  <a class="navbar-brand" href="{% url 'home' %}"><i class="fas fa-seedling"></i> Seeds</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
-    <ul class="navbar-nav mr-auto">
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'people_list' %}">People</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#">Encounters</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'about' %}">About</a>
-      </li>
-    </ul>
-    
     {% if user.is_authenticated %}
-      <form id="logoutForm" action="/logout/?next=/" method="post" class="navbar-right">
-        {% csrf_token %}
-        <ul class="nav navbar-nav navbar-right">
-          <li class="dropdown hidden-xs user-links">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" 
-            aria-haspopup="true" aria-expanded="false">
-              <span class="user-name">
-                {{ user.first_name }}
-              </span> <span class="caret"></span></a>
-            <ul class="dropdown-menu">
-              <li><a href="#">
-                <i class="fas fa-id-card"></i><span class="text">Account</span></a></li>
-              <li role="separator" class="divider"></li>
-              <li><a href="javascript:document.getElementById('logoutForm').submit()">
-                <i class="fas fa-sign-out"></i><span class="text">Log off</span></a></li>
-            </ul>
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'people_list' %}"><i class="fa fa-users"></i> <br>People</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#"><i class="fas fa-comment-lines"></i> <br>Connections</a>
+        </li>
+        {% if user.is_staff %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'admin:index' %}"><i class="fas fa-cogs"></i> <br>Admin</a>
           </li>
-          <!-- On mobile, don't bother with dropdown -->
-          <li class="visible-xs-inline-block">
-            <a href="#">
-              <span class="user-name">
-                {{ user.first_name }}
-              </span>
-            </a>
-          </li>
-          <li role="separator" class="divider visible-xs-inline-block"></li>
-          <li class="visible-xs-inline-block"><a href="javascript:document.getElementById('logoutForm').submit()">
-            <i class="fas fa-sign-out"></i><br>Log off</a></li>
-        </ul>
-      </form>
-    {% else %}
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="{% url 'login' %}?next={{ request.path }}"><i class="fas fa-sign-in"></i><br>Sign up / Log in</a></li>
+        {% endif %}
       </ul>
     {% endif %}
+    
+    <ul class="nav navbar-nav navbar-right ml-auto">
+    {% if user.is_authenticated %}
+      <form id="logoutForm" action="/logout/?next=/" method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary"><i class="fas fa-sign-out"></i> Log off</button>
+      </form>
+    {% else %}
+        <a class="btn btn-info" href="{% url 'login' %}?next={{ request.path }}"><i class="fas fa-sign-in"></i> Log in</a>
+    {% endif %}
+    </ul>
   </div>
 </nav>

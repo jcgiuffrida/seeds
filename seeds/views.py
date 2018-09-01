@@ -1,9 +1,10 @@
 """Views for the app."""
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, ListView, DetailView, UpdateView, CreateView, DeleteView
 
 from .forms import PersonForm
+from .mixins import AccessMixin
 from .models import Person
 
 class Home(TemplateView):
@@ -14,7 +15,7 @@ class About(TemplateView):
     """About page."""
     template_name = 'about.html'
 
-class PeopleList(ListView):
+class PeopleList(LoginRequiredMixin, ListView):
     """List of people."""
     model = Person
     template_name = 'people/list.html'
@@ -22,19 +23,18 @@ class PeopleList(ListView):
     def get_queryset(self):
         return Person.objects.for_user(self.request.user)
 
-class PersonDetail(DetailView):
+class PersonDetail(AccessMixin, DetailView):
     """Page for a person."""
     model = Person
     template_name = 'people/detail.html'
 
-class PersonUpdate(UpdateView):
+class PersonUpdate(AccessMixin, UpdateView):
     """Page for a person."""
     model = Person
     form_class = PersonForm
     template_name = 'people/update.html'
 
-
-class PersonCreate(CreateView):
+class PersonCreate(LoginRequiredMixin, CreateView):
     """Page for a person."""
     model = Person
     form_class = PersonForm
@@ -44,8 +44,7 @@ class PersonCreate(CreateView):
         form.instance.created_by = self.request.user
         super(PersonCreate, self).form_valid(form)
 
-
-class PersonDelete(DeleteView):
+class PersonDelete(AccessMixin, DeleteView):
     """Page for a person."""
     model = Person
     template_name = 'people/delete.html'

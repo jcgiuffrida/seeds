@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}{{ person }} - Update{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col">
+    <a class="btn btn-default float-right" href="{% url 'person_detail' person.slug %}">View</a>
+    <h1>{{ person }}</h1>
+    {% crispy form %}
+  </div>
+</div>
+{% endblock %}
