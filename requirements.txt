@@ -3,6 +3,7 @@ Django==2.1
 django-crispy-forms==1.7.2
 django-hashid-field  # note this requires django <2.1 but works with 2.1
 pytz==2018.5
+docutils
 
 # Development
 ipdb

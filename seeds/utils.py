@@ -3,7 +3,7 @@ import itertools
 from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import slugify as dj_slugify
 
-def slugify(obj):
+def slugify(obj, attribute=None):
     """Creates/updates the object's slug."""
     ObjectClass = ContentType.objects.get_for_model(obj).model_class()
     assert hasattr(ObjectClass, 'slug'), 'Object class does not have a slug field'
@@ -12,7 +12,9 @@ def slugify(obj):
     # Every model with a slug field needs to have a _slug_field method returning
     # the string that should be used to make the slug (e.g. self.title or self.name)
     slug_content = None
-    if hasattr(ObjectClass, 'get_slug_content'):
+    if attribute and hasattr(ObjectClass, attribute):
+        slug_content = getattr(obj, attribute)
+    elif hasattr(ObjectClass, 'get_slug_content'):
         slug_content = obj.get_slug_content()
     elif hasattr(ObjectClass, 'name'):
         slug_content = obj.name

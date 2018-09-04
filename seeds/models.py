@@ -26,7 +26,7 @@ class Person(BaseModel):
         related_name='people') # TODO limit_choices_to
 
     city = models.CharField(max_length=50, default='Chicago', blank=True)
-    birthday = models.DateField(blank=True, null=True, help_text='Ignore the year if unknown.')
+    birthday = models.DateField(blank=True, null=True, help_text='Use any year if unknown.')
     address = models.TextField(default='', blank=True)
 
     notes = models.TextField(default='', blank=True)
@@ -128,8 +128,10 @@ class Connection(BaseModel):
         ('text', 'Text'),
     )
     id = HashidAutoField(primary_key=True, min_length=3)
+    people = models.ManyToManyField(Person, related_name='connections')
     mode = models.CharField(max_length=16, choices=MODES, blank=False)
-    reciprocated = models.BooleanField(default=False)
+    summary = models.CharField(max_length=64, blank=False)
+    reciprocated = models.BooleanField(default=True)
     date = models.DateField(default=timezone.now)
     location = models.CharField(max_length=32, default='', blank=True, help_text='In person only')
     notes = models.TextField(help_text='A summary of the conversation.')
@@ -138,7 +140,12 @@ class Connection(BaseModel):
         ordering = ('-date', 'mode')
 
     def __str__(self):
-        return self.mode
+        return '{0} on {1}: {2} ({3})'.format(
+            self.person,
+            self.date,
+            self.summary,
+            self.mode,
+        )
 
     def save(self, *args, **kwargs):
         """Perform checks."""

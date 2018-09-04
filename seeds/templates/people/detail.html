@@ -4,9 +4,51 @@
 
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col">
+  <div class="col-12">
     <a class="btn btn-default float-right" href="{% url 'person_update' person.slug %}">Edit</a>
+    <a class="btn btn-primary float-right mr-3" href="{% url 'about' %}"><i class="fas fa-comment-lines"></i> New connection</a>
     <h1>{{ person }}</h1>
+  </div>
+  <div class="col-md-4">
+    <h3>Details</h3>
+    <p><b>City:</b> {{ person.city|default:'Unknown' }}</p>
+    {% if person.partner %}
+      <p><b>Partner:</b> <a href="{% url 'person_detail' person.partner.slug %}">{{ person.partner }}</a></p>
+    {% endif %}
+    {% if person.known_via %}
+      <p><b>Known via:</b> <a href="{% url 'person_detail' person.known_via.slug %}">{{ person.known_via }}</a></p>
+    {% endif %}
+    {% if person.company %}
+      <p><b>Company:</b> {{ person.company }}</p>
+    {% endif %}
+    {% if person.birthday %}
+      <p><b>Birthday:</b> {{ person.birthday|date:'F d' }}</p>
+    {% endif %}
+    {% if person.address %}
+      <div><b>Address</b> {{ person.address|linebreaks }}</div>
+    {% endif %}
+    {% for sector in person.sectors.all %}
+      <a class="btn btn-secondary btn-outline" 
+        href="{% url 'people_list' %}?sector={{ sector.slug }}">
+        {{ sector }}
+      </a>
+    {% endfor %}
+  </div>
+  <div class="col-md-3">
+    <h3>Notes</h3>
+    {{ person.notes|default:'Nothing yet.' }}
+  </div>
+  <div class="col">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Connections</h5>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">December 17 - Seed</li>
+          <li class="list-group-item">December 6 - Dinner at Lonesome Rose</li>
+          <li class="list-group-item">November 30 - Phone call</li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

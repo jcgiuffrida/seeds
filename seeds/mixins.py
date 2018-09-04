@@ -46,7 +46,7 @@ class BaseModel(models.Model):
     def delete(self, force=True, **kwargs):
         """Change active to False rather than deleting the object."""
         if force:
-            return super(AuditingModel, self).delete(**kwargs)
+            return super(BaseModel, self).delete(**kwargs)
         elif self.active:
             self.active = False
             self.save()

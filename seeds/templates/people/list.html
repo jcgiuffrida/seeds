@@ -1,12 +1,36 @@
-{% extends "layout.html" %}
+{% extends "layout-wide.html" %}
 
 {% block title %}People{% endblock %}
 
 {% block content %}
-<div class="col">
-  <h1>People</h1>
-  {% for person in person_list %}
-    <p><a href="{% url 'person_detail' person.slug %}">{{ person }}</a></p>
-  {% endfor %}
+<div class="row">
+  <div class="col-md-9">
+    <a class="btn btn-primary float-right" href="{% url 'person_create' %}"><i class="fas fa-plus"></i> Add new person</a>
+    <h1 class="mb-3">
+      People
+      {% if search.sector %}<span class="badge badge-info">{{ search.sector|capfirst }}</span>{% endif %}
+    </h1>
+    <ul class="list-group">
+      {% for person in person_list %}
+        <a class="list-group-item" href="{% url 'person_detail' person.slug %}">
+          <i class="fas fa-user"></i>
+          {{ person }}
+          -
+          {{ person.city }}
+        </a>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="col-md-3">
+    <h3>Filters</h3>
+    <h4>Sector</h4>
+    <a class="btn btn-secondary btn-outline mb-2" href="{% url 'people_list' %}">All</a>
+    {% for sector in sectors %}
+      <a class="btn btn-secondary btn-outline mb-2" 
+        href="{% url 'people_list' %}?sector={{ sector.slug }}">
+        {{ sector }}
+      </a>
+    {% endfor %}
+  </div>
 </div>
 {% endblock %}

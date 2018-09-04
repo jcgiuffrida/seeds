@@ -5,8 +5,10 @@
 {% block title %}People{% endblock %}
 
 {% block content %}
-<div class="col">
-  <h1>Add a new person</h1>
-  {% crispy form %}
+<div class="row justify-content-center">
+  <div class="col col-md-8">
+    <h1>Add a new person</h1>
+    {% crispy form %}
+  </div>
 </div>
 {% endblock %}
