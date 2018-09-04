@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ conversation }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12">
+    <a class="btn btn-default float-right" href="{% url 'conversation_update' conversation.pk %}">Edit</a>
+    <h1>{{ conversation }}</h1>
+  </div>
+  <div class="col-md-4">
+    <h3>Details</h3>
+    {{ conversation.pk }}
+  </div>
+</div>
+{% endblock %}

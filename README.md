@@ -1,2 +1,2 @@
 # seeds
-Track contacts and connections
+Track contacts and conversations

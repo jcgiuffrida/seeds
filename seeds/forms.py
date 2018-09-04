@@ -1,11 +1,12 @@
 from django import forms
 from django.core.validators import RegexValidator
+from django.utils import timezone
 
 from crispy_forms.bootstrap import FormActions, Tab, TabHolder, AppendedText
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, HTML, Field, Row, Div
 
-from .models import Person
+from .models import Person, Conversation
 
 class PersonForm(forms.ModelForm):
     """Form for a person."""
@@ -61,3 +62,53 @@ class PersonForm(forms.ModelForm):
         model = Person
         fields = ['first_name', 'last_name', 'partner', 'known_via', 'company', 'sectors', 'city', 
             'birthday', 'address', 'notes']
+
+
+class ConversationForm(forms.ModelForm):
+    """Form for a conversation."""
+    summary = forms.CharField(max_length=64, label='')
+    notes = forms.CharField(widget=forms.Textarea, required=False, label='')
+    date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}), label='')
+
+    def __init__(self, *args, **kwargs):
+        selected_person = kwargs.pop('person', None)
+        super(ConversationForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Row(
+                Field('people', wrapper_class='col-7 col-sm-8', css_class='select2-enable', autofocus=""),
+                Field('date', wrapper_class='col-5 col-sm-4'),
+                Field('summary', wrapper_class='col-7 col-sm-8', placeholder='Summary'),
+                Field('reciprocated', css_class='col-5 col-sm-4'),
+                Field('notes', wrapper_class='col-7 col-sm-8', placeholder='Notes from the conversation', rows=3),
+                Field('mode', wrapper_class='col-5 col-sm-4', css_class='select2-enable'),
+                css_class='mt-3',
+            ),
+            Div(
+                Submit('submit', 'Save conversation'),
+                HTML("""<a class="btn btn-danger float-right" href="{% url 'conversation_delete' conversation.pk %}">Delete</a>"""),
+            ),
+        )
+        if not self.instance.pk:
+            # Remove "Delete" button
+            self.helper.layout.fields[1].pop()
+        self.fields['date'].initial = timezone.now()
+        self.fields['people'].label = ''
+        self.fields['mode'].label = ''
+        if selected_person:
+            self.fields['people'].initial = selected_person
+
+    def clean_reciprocated(self):
+        """If the conversation was not over writing, it must have been reciprocated!"""
+        if (not self.cleaned_data['reciprocated'] and 
+            self.cleaned_data['mode'] in ['one on one', 'in person', 'skype', 'phone']):
+            raise forms.ValidationError(
+                "How can the conversation be unreciprocated if it was {0}?".format(
+                    self.cleaned_data['mode']
+                )
+            )
+        return self.cleaned_data['reciprocated']
+
+    class Meta:
+        model = Conversation
+        fields = ['people', 'mode', 'summary', 'reciprocated', 'date', 'notes']

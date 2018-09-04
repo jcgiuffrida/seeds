@@ -3,15 +3,17 @@ module.exports = (_ => {
   function renderActiveTab() {
     if (isPath('people')){
       $('.navbar-nav .people').addClass('active')
-    } else if (isPath('connections')){
-      $('.navbar-nav .connections').addClass('active')
+    } else if (isPath('conversations')){
+      $('.navbar-nav .conversations').addClass('active')
     }
   }
 
   const regex = {
     people: /^\/people\//,
-    connections: /^\/connections\//,
+    conversations: /^\/conversations\//,
     personDetail: /^\/people\/[\w-]+\//,
+    personEdit: /^\/people\/([\w-]+\/)?[(edit)|(add)]\//,
+    conversationEdit: /^\/conversations\/(\w{3,}\/)?(edit|add)\//,
   }
 
   function isPath(page, path = window.location.pathname) {

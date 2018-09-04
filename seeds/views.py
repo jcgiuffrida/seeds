@@ -4,9 +4,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, DetailView, UpdateView, CreateView, DeleteView
 
-from .forms import PersonForm
+from .forms import PersonForm, ConversationForm
 from .mixins import AccessMixin
-from .models import Person, Sector
+from .models import Person, Sector, Conversation
 
 class Home(TemplateView):
     """Home page."""
@@ -62,3 +62,72 @@ class PersonDelete(AccessMixin, DeleteView):
     model = Person
     template_name = 'people/delete.html'
     success_url = reverse_lazy('people_list')
+
+
+class ConversationList(LoginRequiredMixin, ListView):
+    """List all conversations, optionally for a single person or sector."""
+    model = Conversation
+    template_name = 'conversations/list.html'
+
+    def get_queryset(self):
+        qs = Conversation.objects.for_user(self.request.user)
+        if self.request.GET.get('person'):
+            qs = qs.filter(people__slug=self.request.GET.get('person'))
+        if self.request.GET.get('sector'):
+            qs = qs.filter(people__sector__slug=self.request.GET.get('sector'))
+        return qs
+
+    def get_context_data(self):
+        context = super(ConversationList, self).get_context_data()
+        context.update({
+            'sectors': Sector.objects.for_user(self.request.user),
+            'search': {
+                'sector': self.request.GET.get('sector'),
+            },
+        })
+        if self.request.GET.get('person'):
+            context['search']['person'] = (Person.objects.for_user(self.request.user)
+                .filter(slug=self.request.GET.get('person'))
+                .first())
+        return context
+
+class ConversationDetail(AccessMixin, DetailView):
+    """Page for a conversation."""
+    model = Conversation
+    template_name = 'conversations/detail.html'
+
+class ConversationUpdate(AccessMixin, UpdateView):
+    """Page for a conversation."""
+    model = Conversation
+    form_class = ConversationForm
+    template_name = 'conversations/update.html'
+
+class ConversationCreate(LoginRequiredMixin, CreateView):
+    """Page for a conversation."""
+    model = Conversation
+    form_class = ConversationForm
+    template_name = 'conversations/create.html'
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super(ConversationCreate, self).form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super(ConversationCreate, self).get_form_kwargs()
+        selected_person = None
+        if self.request.GET.get('person'):
+            try:
+                person = Person.objects.for_user(self.request.user).get(
+                    slug=self.request.GET.get('person')
+                )
+                selected_person = person.pk
+            except Person.DoesNotExist:
+                pass
+        kwargs['person'] = selected_person
+        return kwargs
+
+class ConversationDelete(AccessMixin, DeleteView):
+    """Page for a conversation."""
+    model = Conversation
+    template_name = 'conversations/delete.html'
+    success_url = reverse_lazy('conversation_list')

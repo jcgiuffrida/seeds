@@ -1,0 +1,8 @@
+{% extends "layout-form.html" %}
+
+{% block title %}{{ conversation }} - Update{% endblock %}
+
+{% block before-form %}
+  <a class="btn btn-default float-right" href="{% url 'conversation_detail' conversation.pk %}">View conversation</a>
+  <h1>{{ conversation }}</h1>
+{% endblock %}

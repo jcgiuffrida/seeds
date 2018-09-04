@@ -1,0 +1,37 @@
+{% extends "layout-wide.html" %}
+
+{% block title %}Conversations{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-9">
+    <a class="btn btn-primary float-right" href="{% url 'conversation_create' %}"><i class="fas fa-plus"></i> Add new conversation</a>
+    <h1 class="mb-3">
+      Conversations
+      {% if search.sector %}<span class="badge badge-info">{{ search.sector|capfirst }}</span>{% endif %}
+    </h1>
+    <ul class="list-group">
+      {% for conversation in conversation_list %}
+        <a class="list-group-item" href="{% url 'conversation_detail' conversation.pk %}">
+          <i class="fas fa-user"></i>
+          {{ conversation }}
+        </a>
+      {% empty %}
+        <p>You have not recorded any conversations yet. 
+          <a href="{% url 'conversation_create' %}">Start your first one!</a></p>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="col-md-3">
+    <h3>Filters</h3>
+    <h4>Sector</h4>
+    <a class="btn btn-secondary btn-outline mb-2" href="{% url 'conversation_list' %}">All</a>
+    {% for sector in sectors %}
+      <a class="btn btn-secondary btn-outline mb-2" 
+        href="{% url 'conversation_list' %}?sector={{ sector.slug }}">
+        {{ sector }}
+      </a>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

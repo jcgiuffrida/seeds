@@ -34,6 +34,7 @@ class Person(BaseModel):
     class Meta:
         verbose_name_plural = 'people'
         unique_together = ('slug', 'created_by')
+        ordering = ('first_name', 'last_name')
 
     @property
     def name(self):
@@ -110,16 +111,16 @@ class Sector(BaseModel):
         return self.name
 
 
-class ConnectionManager(UserManager):
+class ConversationManager(UserManager):
     def seeds(self):
-        return super(ConnectionManager, self).get_queryset().filter(reciprocated=False)
+        return super(ConversationManager, self).get_queryset().filter(reciprocated=False)
 
-class Connection(BaseModel):
-    """A connection, reciprocated or not, with a person."""
-    objects = ConnectionManager()
+class Conversation(BaseModel):
+    """A conversation, reciprocated or not, with a person."""
+    objects = ConversationManager()
 
     MODES = (
-        (None, '(Select one)'),
+        (None, '(Where did this take place?)'),
         ('one on one', 'In person (one on one)'),
         ('in person', 'In person (group)'),
         ('skype', 'Skype'),
@@ -128,11 +129,11 @@ class Connection(BaseModel):
         ('text', 'Text'),
     )
     id = HashidAutoField(primary_key=True, min_length=3)
-    people = models.ManyToManyField(Person, related_name='connections')
+    people = models.ManyToManyField(Person, related_name='conversations')
     mode = models.CharField(max_length=16, choices=MODES, blank=False)
     summary = models.CharField(max_length=64, blank=False)
-    reciprocated = models.BooleanField(default=True)
-    date = models.DateField(default=timezone.now)
+    reciprocated = models.BooleanField(default=True, help_text='Was this a two-way conversation?')
+    date = models.DateField(default=timezone.now, help_text='Enter in any format.')
     location = models.CharField(max_length=32, default='', blank=True, help_text='In person only')
     notes = models.TextField(help_text='A summary of the conversation.')
 
@@ -141,7 +142,7 @@ class Connection(BaseModel):
 
     def __str__(self):
         return '{0} on {1}: {2} ({3})'.format(
-            self.person,
+            self.people.first(),
             self.date,
             self.summary,
             self.mode,
@@ -150,10 +151,10 @@ class Connection(BaseModel):
     def save(self, *args, **kwargs):
         """Perform checks."""
         if not self.reciprocated and self.mode in ['one on one', 'in person', 'skype', 'phone']:
-            raise ValidationError('How can the connection be unreciprocated if it was via {0}?'.format(self.mode))
-        super(Connection, self).save(*args, **kwargs)
+            raise ValidationError('How can the conversation be unreciprocated if it was via {0}?'.format(self.mode))
+        super(Conversation, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return ''
+        return reverse('conversation_detail', kwargs={'pk': self.pk})
 
 

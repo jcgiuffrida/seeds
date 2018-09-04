@@ -3,8 +3,8 @@
 {% block title %}People{% endblock %}
 
 {% block content %}
-<div class="row">
-  <div class="col-md-9">
+<div class="row justify-content-center">
+  <div class="col-md-8">
     <a class="btn btn-primary float-right" href="{% url 'person_create' %}"><i class="fas fa-plus"></i> Add new person</a>
     <h1 class="mb-3">
       People
@@ -15,8 +15,7 @@
         <a class="list-group-item" href="{% url 'person_detail' person.slug %}">
           <i class="fas fa-user"></i>
           {{ person }}
-          -
-          {{ person.city }}
+          <span class="badge badge-secondary float-right">{{ person.city }}</span>
         </a>
       {% endfor %}
     </ul>
@@ -24,12 +23,20 @@
   <div class="col-md-3">
     <h3>Filters</h3>
     <h4>Sector</h4>
-    <a class="btn btn-secondary btn-outline mb-2" href="{% url 'people_list' %}">All</a>
+    {% if not search.sector %}
+      <button type="button" class="btn btn-outline-info mb-2">All</button>
+    {% else %}
+      <a class="btn btn-secondary mb-2" href="{% url 'people_list' %}">All</a>
+    {% endif %}
     {% for sector in sectors %}
-      <a class="btn btn-secondary btn-outline mb-2" 
-        href="{% url 'people_list' %}?sector={{ sector.slug }}">
-        {{ sector }}
-      </a>
+      {% ifequal sector.slug search.sector %}
+        <button class="btn btn-outline-info mb-2" type="button">{{ sector }}</button>
+      {% else %}
+        <a class="btn btn-secondary btn-outline mb-2" 
+          href="{% url 'people_list' %}?sector={{ sector.slug }}">
+          {{ sector }}
+        </a>
+      {% endifequal %}
     {% endfor %}
   </div>
 </div>

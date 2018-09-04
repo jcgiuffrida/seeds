@@ -1,0 +1,17 @@
+{% extends "layout-form.html" %}
+
+{% block title %}Delete {{ conversation }}{% endblock %}
+
+{% block before-form %}
+  <a class="btn btn-default float-right" href="{% url 'conversation_detail' conversation.pk %}">View</a>
+{% endblock %}
+
+{% block form %}
+  <form action="." method="post">
+  {% csrf_token %}
+    <h3 class="text-danger">Are you sure you want to delete the data for this conversation?</h3>
+    <p>{{ conversation }}</p>
+    <button class="btn btn-danger" type="submit">Remove conversation</button>
+    <a class="btn btn-default" href="{% url 'conversation_update' conversation.pk %}">No, sorry, false alarm</a>
+  </form>
+{% endblock %}
