@@ -1,7 +1,5 @@
 """Basic models."""
 from django.db import models
-from django.contrib.auth.models import User
-from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.urls import reverse
@@ -15,15 +13,15 @@ class Person(BaseModel):
     first_name = models.CharField(max_length=64, default='', blank=True)
     last_name = models.CharField(max_length=64, default='', blank=True)
     partner = models.OneToOneField('self', on_delete=models.SET_NULL, blank=True, null=True, 
-        related_name='partner_reverse', help_text='Each person can have at most one partner.') # TODO limit_choices_to
-    known_via = models.OneToOneField('self', on_delete=models.SET_NULL, blank=True, null=True, 
-        related_name='known_via_set') # TODO limit_choices_to 
+        related_name='partner_reverse', help_text='Each person can have at most one partner.')
+    known_via = models.ForeignKey('self', on_delete=models.SET_NULL, blank=True, null=True, 
+        related_name='known_via_set')
     slug = models.SlugField(max_length=128, blank=True)
 
     company = models.ForeignKey('Company', on_delete=models.SET_NULL, blank=True, null=True, 
-        related_name='people') # TODO limit_choices_to
+        related_name='people')
     sectors = models.ManyToManyField('Sector', blank=True, 
-        related_name='people') # TODO limit_choices_to
+        related_name='people')
 
     city = models.CharField(max_length=50, default='Chicago', blank=True)
     birthday = models.DateField(blank=True, null=True, help_text='Use any year if unknown.')
@@ -70,6 +68,7 @@ class Person(BaseModel):
         return reverse('person_detail', kwargs={'slug': self.slug})
 
 class Company(BaseModel):
+    """A place where people work/study."""
     name = models.CharField(max_length=64)
     slug = models.SlugField(max_length=64, blank=True)
 
@@ -159,6 +158,7 @@ class Conversation(BaseModel):
 
     @property
     def people_str(self):
+        """Human-friendly list of people in this conversation."""
         people = list(self.people.all())
         if not len(people):
             return ''

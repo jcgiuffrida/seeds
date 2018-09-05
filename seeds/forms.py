@@ -1,16 +1,18 @@
+"""All forms live here."""
 from django import forms
-from django.core.validators import RegexValidator
 from django.utils import timezone
 
-from crispy_forms.bootstrap import FormActions, Tab, TabHolder, AppendedText, PrependedText
+from crispy_forms.bootstrap import Tab, TabHolder
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Submit, HTML, Field, Row, Div, Hidden
 
-from .models import Person, Conversation
+from .models import Person, Conversation, Sector, Company
 
 class PersonForm(forms.ModelForm):
     """Form for a person."""
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        assert user, 'Cannot instantiate form without a user'
         super(PersonForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -61,9 +63,16 @@ class PersonForm(forms.ModelForm):
                 HTML("""<a class="btn btn-danger float-right" href="{% url 'person_delete' person.slug %}">Delete</a>"""),
             ),
         )
+        
+        # Remove "Delete" button
         if not self.instance.pk:
-            # Remove "Delete" button
             self.helper.layout.fields[1].pop()
+
+        # Adjust fields
+        self.fields['sectors'].queryset = Sector.objects.for_user(user)
+        self.fields['company'].queryset = Company.objects.for_user(user)
+        self.fields['partner'].queryset = Person.objects.for_user(user).exclude(pk=self.instance.pk)
+        self.fields['known_via'].queryset = Person.objects.for_user(user).exclude(pk=self.instance.pk)
 
     class Meta:
         model = Person
@@ -81,6 +90,8 @@ class ConversationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         selected_person = kwargs.pop('person', None)
+        user = kwargs.pop('user')
+        assert user, 'Cannot instantiate form without a user'
         super(ConversationForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -88,7 +99,7 @@ class ConversationForm(forms.ModelForm):
                 Field('people', wrapper_class='col-7 col-sm-8', css_class='select2-enable'),
                 Field('date', wrapper_class='col-5 col-sm-4'),
                 Field('summary', wrapper_class='col-7 col-sm-8', placeholder='Summary'),
-                Field('seed', css_class='col-5 col-sm-4'),
+                Field('seed', wrapper_class='pl-4-5', css_class='col-5 col-sm-4'),
                 Field('notes', wrapper_class='col-7 col-sm-8', placeholder='Notes from the conversation', rows=3),
                 Div(
                     Field('mode', css_class='select2-enable'),
@@ -102,10 +113,14 @@ class ConversationForm(forms.ModelForm):
                 HTML("""<a class="btn btn-danger float-right" href="{% url 'conversation_delete' conversation.pk %}">Delete</a>"""),
             ),
         )
+
+        # Remove "Delete" button
         if not self.instance.pk:
-            # Remove "Delete" button
             self.helper.layout.fields[1].pop()
             self.helper.layout.fields[0][0].autofocus = ''
+        
+        # Adjust fields
+        self.fields['people'].queryset = Person.objects.for_user(user)
         self.fields['date'].initial = timezone.now()
         self.fields['people'].label = ''
         self.fields['mode'].label = ''

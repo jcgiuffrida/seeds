@@ -1,3 +1,4 @@
+"""Reusable methods."""
 import itertools
 
 from django.contrib.contenttypes.models import ContentType
@@ -19,7 +20,7 @@ def slugify(obj, attribute=None):
     elif hasattr(ObjectClass, 'name'):
         slug_content = obj.name
     else:
-        raise 'Object class has no get_slug_content method or name field'
+        raise Exception('Object class has no get_slug_content method or name field')
 
     if obj.pk and obj.slug:
         # Already has a slug - check that slug_content hasn't changed

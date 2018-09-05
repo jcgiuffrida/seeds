@@ -1,9 +1,7 @@
+"""Reusable classes for the app."""
 from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import redirect_to_login
-from django.core.exceptions import PermissionDenied
 from django.db import models
-from django.utils import timezone
 
 from .utils import slugify
 
@@ -76,3 +74,10 @@ class AccessMixin(LoginRequiredMixin, object):
     """
     def get_queryset(self):
         return self.model.objects.for_user(self.request.user)
+
+class UserFormMixin(object):
+    """ Adds the current user to form kwargs. """
+    def get_form_kwargs(self):
+        kwargs = super(UserFormMixin, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs

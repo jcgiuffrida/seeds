@@ -1,5 +1,4 @@
 """Views for the app."""
-from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
 from django.urls import reverse, reverse_lazy
@@ -7,7 +6,7 @@ from django.shortcuts import redirect
 from django.views.generic import TemplateView, ListView, DetailView, UpdateView, CreateView, DeleteView
 
 from .forms import PersonForm, ConversationForm
-from .mixins import AccessMixin
+from .mixins import AccessMixin, UserFormMixin
 from .models import Person, Sector, Conversation
 
 class Home(TemplateView):
@@ -58,13 +57,13 @@ class PersonDetail(AccessMixin, DetailView):
     model = Person
     template_name = 'people/detail.html'
 
-class PersonUpdate(AccessMixin, UpdateView):
+class PersonUpdate(AccessMixin, UserFormMixin, UpdateView):
     """Page for a person."""
     model = Person
     form_class = PersonForm
     template_name = 'people/update.html'
 
-class PersonCreate(LoginRequiredMixin, CreateView):
+class PersonCreate(LoginRequiredMixin, UserFormMixin, CreateView):
     """Page for a person."""
     model = Person
     form_class = PersonForm
@@ -113,13 +112,13 @@ class ConversationDetail(AccessMixin, DetailView):
     model = Conversation
     template_name = 'conversations/detail.html'
 
-class ConversationUpdate(AccessMixin, UpdateView):
+class ConversationUpdate(AccessMixin, UserFormMixin, UpdateView):
     """Page for a conversation."""
     model = Conversation
     form_class = ConversationForm
     template_name = 'conversations/update.html'
 
-class ConversationCreate(LoginRequiredMixin, CreateView):
+class ConversationCreate(LoginRequiredMixin, UserFormMixin, CreateView):
     """Page for a conversation."""
     model = Conversation
     form_class = ConversationForm
