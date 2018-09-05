@@ -11,9 +11,11 @@ module.exports = (_ => {
   const regex = {
     people: /^\/people\//,
     conversations: /^\/conversations\//,
+    conversationList: /^\/conversations\/$/,
     personDetail: /^\/people\/[\w-]+\//,
-    personEdit: /^\/people\/([\w-]+\/)?[(edit)|(add)]\//,
+    personEdit: /^\/people\/([\w-]+\/)?(edit|add)\//,
     conversationEdit: /^\/conversations\/(\w{3,}\/)?(edit|add)\//,
+    conversationCreate: /^\/conversations\/add\//,
   }
 
   function isPath(page, path = window.location.pathname) {

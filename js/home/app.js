@@ -12,7 +12,12 @@ const home = (_ => {
     } else if (util.isPath('conversationEdit')){
       $(() => {
         initSelect2();
-        $('select[name="people"]').select2('open')
+        var $select = $('select[name="people"]');
+        if (util.isPath('conversationCreate') && !$('select[name="people"]').val()){
+          $('select[name="people"]').select2('open')
+        } else {
+          $('input[name="summary"]').select().focus()
+        }
       });
     }
   }

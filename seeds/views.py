@@ -1,7 +1,9 @@
 """Views for the app."""
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.db.models import Count
+from django.urls import reverse, reverse_lazy
+from django.shortcuts import redirect
 from django.views.generic import TemplateView, ListView, DetailView, UpdateView, CreateView, DeleteView
 
 from .forms import PersonForm, ConversationForm
@@ -11,6 +13,21 @@ from .models import Person, Sector, Conversation
 class Home(TemplateView):
     """Home page."""
     template_name = 'home.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect(reverse('about'))
+        return super(Home, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self):
+        context = super(Home, self).get_context_data()
+        context.update({
+            'recent_conversations': Conversation.objects.for_user(self.request.user)[:8],
+            'top_people': (Person.objects.for_user(self.request.user)
+                .annotate(num_conversations=Count('conversations'))
+                .order_by('-num_conversations'))[:8],
+        })
+        return context
 
 class About(TemplateView):
     """About page."""
@@ -72,15 +89,16 @@ class ConversationList(LoginRequiredMixin, ListView):
     def get_queryset(self):
         qs = Conversation.objects.for_user(self.request.user)
         if self.request.GET.get('person'):
-            qs = qs.filter(people__slug=self.request.GET.get('person'))
+            qs = qs.filter(people__slug=self.request.GET.get('person')).distinct()
         if self.request.GET.get('sector'):
-            qs = qs.filter(people__sector__slug=self.request.GET.get('sector'))
+            qs = qs.filter(people__sectors__slug=self.request.GET.get('sector')).distinct()
         return qs
 
     def get_context_data(self):
         context = super(ConversationList, self).get_context_data()
         context.update({
             'sectors': Sector.objects.for_user(self.request.user),
+            'people': Person.objects.for_user(self.request.user).filter(conversations__isnull=False),
             'search': {
                 'sector': self.request.GET.get('sector'),
             },

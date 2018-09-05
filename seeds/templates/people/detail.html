@@ -43,8 +43,34 @@
       <div class="card-body">
         <h5 class="card-title">Conversations</h5>
         <ul class="list-group list-group-flush">
-          {% for conversation in person.conversations.all %}
-            <li class="list-group-item">{{ conversation.date }} - {{ conversation.summary }}</li>
+          {% for conversation in person.conversations.all|slice:":5" %}
+            {% if forloop.counter < 5 %}
+              <li class="list-group-item">
+                {% if conversation.seed %}
+                  <i class="fas fa-seedling text-success"></i>
+                {% elif conversation.mode == 'one on one' %}
+                  <i class="far fa-fw fa-user-friends"></i>
+                {% elif conversation.mode == 'in person' %}
+                  <i class="far fa-fw fa-users"></i>
+                {% elif conversation.mode == 'skype' %}
+                  <i class="far fa-fw fa-skype"></i>
+                {% elif conversation.mode == 'phone' %}
+                  <i class="far fa-fw fa-phone"></i>
+                {% elif conversation.mode == 'email' %}
+                  <i class="far fa-fw fa-envelope"></i>
+                {% elif conversation.mode == 'text' %}
+                  <i class="far fa-fw fa-mobile-alt"></i>
+                {% endif %}
+                <b>{{ conversation.date|date:'n/j' }}</b> - {{ conversation.summary }}
+                <a href="{% url 'conversation_detail' conversation.pk %}" class="float-right">
+                  <i class="fas fa-comment-lines"></i>
+                </a>
+              </li>
+            {% else %}
+              <a class="btn btn-primary btn-block" 
+                href="{% url 'conversation_list' %}?person={{ person.slug }}">
+                See all conversations</a>
+            {% endif %}
           {% empty %}
             <li class="list-group-item">No recorded conversations.</li>
           {% endfor %}

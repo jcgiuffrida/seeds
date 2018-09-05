@@ -1,4 +1,4 @@
-### Seeds
+## Seeds
 A web application to track contacts and conversations.
 
 **Copyright (C) 2018 Jonathan Giuffrida**
