@@ -111,13 +111,22 @@ class ConversationForm(forms.ModelForm):
     def clean_seed(self):
         """If the conversation was not over writing, it must have been reciprocated!"""
         if (self.cleaned_data['seed'] and 
-            self.cleaned_data['mode'] in ['one on one', 'in person', 'skype', 'phone']):
+            self.cleaned_data['mode'] in ['one on one', 'in group', 'skype', 'phone']):
             raise forms.ValidationError(
                 "How can the conversation be unreciprocated if it was {0}?".format(
                     self.cleaned_data['mode']
                 )
             )
         return self.cleaned_data['seed']
+
+    def clean_mode(self):
+        """If the conversation was with >1 person, make sure it wasn't one-on-one"""
+        if (self.cleaned_data['mode'] == 'one on one' and 
+            len(self.cleaned_data['people']) > 1):
+            raise forms.ValidationError(
+                "If the conversation was with more than one person, select \"Group\" instead."
+            )
+        return self.cleaned_data['mode']
 
     class Meta:
         model = Conversation

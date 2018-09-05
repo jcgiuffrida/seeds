@@ -24,15 +24,15 @@
     <h3 class="border-bottom">Filters</h3>
     <h4>Sector</h4>
     {% if not search.sector %}
-      <button type="button" class="btn btn-outline-info mb-2">All</button>
+      <button type="button" class="btn btn-secondary mb-2">All</button>
     {% else %}
-      <a class="btn btn-secondary mb-2" href="{% url 'people_list' %}">All</a>
+      <a class="btn btn-outline-info mb-2" href="{% url 'people_list' %}">All</a>
     {% endif %}
     {% for sector in sectors %}
       {% ifequal sector.slug search.sector %}
-        <button class="btn btn-outline-info mb-2" type="button">{{ sector }}</button>
+        <button class="btn btn-secondary mb-2" type="button">{{ sector }}</button>
       {% else %}
-        <a class="btn btn-secondary btn-outline mb-2" 
+        <a class="btn btn-outline-info mb-2" 
           href="{% url 'people_list' %}?sector={{ sector.slug }}">
           {{ sector }}
         </a>

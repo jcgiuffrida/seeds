@@ -5,11 +5,11 @@
 {% block content %}
 <div class="row justify-content-center">
   <div class="col-12">
-    <a class="btn btn-default float-right" href="{% url 'person_update' person.slug %}">Edit</a>
+    <a class="btn btn-outline-primary float-right" href="{% url 'person_update' person.slug %}">Edit</a>
     <a class="btn btn-primary float-right mr-3" href="{% url 'conversation_create' %}?person={{ person.slug }}"><i class="fas fa-comment-lines"></i> New conversation</a>
     <h1>{{ person }}</h1>
   </div>
-  <div class="col-sm-6 col-md-4">
+  <div class="col-sm-6 col-md-4 mb-3">
     <h4>Details</h4>
     <p><b>City:</b> {{ person.city|default:'Unknown' }}</p>
     {% if person.partner %}
@@ -34,38 +34,18 @@
       </a>
     {% endfor %}
   </div>
-  <div class="col-sm-6 col-md-3">
+  <div class="col-sm-6 col-md-3 mb-3">
     <h4>Notes</h4>
     {{ person.notes|default:'Nothing yet.' }}
   </div>
-  <div class="col">
+  <div class="col mb-3">
     <div class="card">
       <div class="card-body">
-        <h5 class="card-title">Conversations</h5>
+        <h4 class="card-title">Conversations</h4>
         <ul class="list-group list-group-flush">
           {% for conversation in person.conversations.all|slice:":5" %}
             {% if forloop.counter < 5 %}
-              <li class="list-group-item">
-                {% if conversation.seed %}
-                  <i class="fas fa-seedling text-success"></i>
-                {% elif conversation.mode == 'one on one' %}
-                  <i class="far fa-fw fa-user-friends"></i>
-                {% elif conversation.mode == 'in person' %}
-                  <i class="far fa-fw fa-users"></i>
-                {% elif conversation.mode == 'skype' %}
-                  <i class="far fa-fw fa-skype"></i>
-                {% elif conversation.mode == 'phone' %}
-                  <i class="far fa-fw fa-phone"></i>
-                {% elif conversation.mode == 'email' %}
-                  <i class="far fa-fw fa-envelope"></i>
-                {% elif conversation.mode == 'text' %}
-                  <i class="far fa-fw fa-mobile-alt"></i>
-                {% endif %}
-                <b>{{ conversation.date|date:'n/j' }}</b> - {{ conversation.summary }}
-                <a href="{% url 'conversation_detail' conversation.pk %}" class="float-right">
-                  <i class="fas fa-comment-lines"></i>
-                </a>
-              </li>
+              {% include 'conversations/list-item.html' %}
             {% else %}
               <a class="btn btn-primary btn-block" 
                 href="{% url 'conversation_list' %}?person={{ person.slug }}">

@@ -8,17 +8,21 @@
     <a class="btn btn-primary float-right" href="{% url 'conversation_create' %}"><i class="fas fa-plus"></i> Add new conversation</a>
     <h1 class="mb-3">
       Conversations
-      {% if search.person %}<span class="badge badge-info">{{ search.person }}</span>{% endif %}
-      {% if search.sector %}<span class="badge badge-info">{{ search.sector|capfirst }}</span>{% endif %}
+      {% if search.person %}
+        <span class="badge badge-info">
+          {{ search.person }}
+          <a href="{% url 'person_detail' search.person.slug %}"><i class="fas fa-user text-white text-hover-secondary"></i></a>
+        </span>
+      {% endif %}
+      {% if search.sector %}
+        <span class="badge badge-info">
+          {{ search.sector|capfirst }}
+        </span>
+      {% endif %}
     </h1>
     <ul class="list-group">
       {% for conversation in conversation_list %}
-        <a class="list-group-item" href="{% url 'conversation_detail' conversation.pk %}">
-          {% if conversation.seed %}
-            <i class="fas fa-seedling text-success"></i>
-          {% endif %}
-          {{ conversation }}
-        </a>
+        {% include 'conversations/list-item.html' with show_person=True %}
       {% empty %}
         <p>You have not recorded any conversations yet. 
           <a href="{% url 'conversation_create' %}">Start your first one!</a></p>
@@ -35,12 +39,20 @@
       </p>
     {% endif %}
     <h4 class="mt-3">Sector</h4>
-    <a class="btn btn-secondary btn-outline mb-2" href="{% url 'conversation_list' %}">All</a>
+    {% if not search.sector %}
+      <button type="button" class="btn btn-secondary mb-2">All</button>
+    {% else %}
+      <a class="btn btn-outline-info mb-2" href="{% url 'conversation_list' %}">All</a>
+    {% endif %}
     {% for sector in sectors %}
-      <a class="btn btn-secondary btn-outline mb-2" 
-        href="{% url 'conversation_list' %}?sector={{ sector.slug }}">
-        {{ sector }}
-      </a>
+      {% ifequal sector.slug search.sector %}
+        <button class="btn btn-secondary mb-2" type="button">{{ sector }}</button>
+      {% else %}
+        <a class="btn btn-outline-info btn-outline mb-2" 
+          href="{% url 'conversation_list' %}?sector={{ sector.slug }}">
+          {{ sector }}
+        </a>
+      {% endifequal %}
     {% endfor %}
   </div>
 </div>

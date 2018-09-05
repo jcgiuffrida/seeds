@@ -36,3 +36,25 @@
 select.select2-enable {
   width: 100%;
 }
+
+.text-hover-secondary:hover {
+  color: $secondary !important;
+  transition: color 0.15s;
+}
+
+.list-group-item.conversation {
+  color: $dark;
+  transition: color 0.2s;
+  
+  .badge { 
+    font-size: 0.9rem; 
+    transition: background-color 0.2s;
+  }
+  
+  i { font-size: 1.1rem; }
+  
+  &:hover {
+    color: $info;
+    .badge { background-color: $info; }
+  }
+}

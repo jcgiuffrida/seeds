@@ -9,8 +9,8 @@ from . import views
 
 urlpatterns = [
     url(r'^', include('django.contrib.auth.urls')),
-    url(r'^$', views.Home.as_view(), name='home'),
-    url(r'^about/$', views.About.as_view(), name='about'),
+    url(r'^$', views.About.as_view(), name='about'),
+    url(r'^dashboard/$', views.Home.as_view(), name='home'),
 
     # People
     url(r'^people/$', views.PeopleList.as_view(), name='people_list'),

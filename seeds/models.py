@@ -121,11 +121,11 @@ class Conversation(BaseModel):
     MODES = (
         (None, 'Select one'),
         ('one on one', 'In person (one on one)'),
-        ('in person', 'In person (group)'),
+        ('in group', 'In person (group)'),
         ('skype', 'Skype'),
         ('phone', 'Phone call'),
         ('email', 'Email'),
-        ('text', 'Text'),
+        ('text', 'Text message'),
     )
     id = HashidAutoField(primary_key=True, min_length=3)
     people = models.ManyToManyField(Person, related_name='conversations')
@@ -177,5 +177,15 @@ class Conversation(BaseModel):
                 people[0],
                 people[1],
                 len(people) - 2)
+
+    def get_mode_icon(self):
+        return {
+            'one on one': 'fa-user-friends',
+            'in group': 'fa-users',
+            'skype': 'fa-skype',
+            'phone': 'fa-phone',
+            'email': 'fa-envelope',
+            'text': 'fa-mobile-alt',
+        }.get(self.mode)
 
 
