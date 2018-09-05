@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # admin
     'django.contrib.humanize',
+    'suit',
     'django.contrib.admin',
     'django.contrib.admindocs',
     # third party apps

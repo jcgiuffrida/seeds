@@ -5,6 +5,7 @@ import util from './utilities.js';
 const home = (_ => {
   function init(){
     util.init()
+
     if (util.isPath('personEdit')){
       $(() => {
         initSelect2();
@@ -13,11 +14,22 @@ const home = (_ => {
       $(() => {
         initSelect2();
         var $select = $('select[name="people"]');
-        if (util.isPath('conversationCreate') && !$('select[name="people"]').val()){
-          $('select[name="people"]').select2('open')
+        if (util.isPath('conversationCreate') && !$('select[name="people"]').val().length){
+          console.log('create')
+          $('select[name="people"]').select2('open').select2('focus')
         } else {
           $('input[name="summary"]').select().focus()
         }
+        if (['one on one', 'in group'].indexOf($('select[name="mode"]').val()) !== -1){
+          $('input[name="location"]').attr('type', 'text').addClass('form-control')
+        }
+        $('select[name="mode"]').on('change', function(){
+          if (['one on one', 'in group'].indexOf($(this).val()) !== -1){
+            $('input[name="location"]').attr('type', 'text').addClass('form-control')
+          } else {
+            $('input[name="location"]').attr('type', 'hidden').val('')
+          }
+        })
       });
     }
   }

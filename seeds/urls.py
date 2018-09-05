@@ -27,8 +27,8 @@ urlpatterns = [
     url(r'^conversations/(?P<pk>\w{3,})/delete/$', views.ConversationDelete.as_view(), name='conversation_delete'),
 
     # Admin
-    url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^admin/', admin.site.urls),
+    url(r'^sanctum/doc/', include('django.contrib.admindocs.urls')),
+    url(r'^sanctum/', admin.site.urls),
 ]
 
 if settings.DEBUG and 'debug_toolbar' in settings.INSTALLED_APPS:
@@ -36,3 +36,7 @@ if settings.DEBUG and 'debug_toolbar' in settings.INSTALLED_APPS:
     urlpatterns = [
         url(r'^__debug__/', include(debug_toolbar.urls)),
     ] + urlpatterns
+
+admin.site.site_header = 'Seeds'
+admin.site.site_title = 'Seeds'
+admin.site.index_title = 'Manage Seeds'

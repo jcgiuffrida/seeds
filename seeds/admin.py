@@ -2,7 +2,7 @@
 from django.contrib import admin
 
 from .mixins import AuditingAdminModelMixin
-from .models import Person, Company, Group, Sector
+from .models import Person, Company, Group, Sector, Conversation
 
 auditing_fields = ['active', 'created_by', 'created_on', 'modified_on']
 auditing_fieldset = (
@@ -21,7 +21,7 @@ class GroupInline(admin.TabularInline):
     extra = 0
 
 class PersonAdmin(AuditingAdminModelMixin, admin.ModelAdmin):
-    readonly_fields = auditing_fields
+    readonly_fields = auditing_fields + ['level']
     list_display = ['name', 'city', 'company']
     search_fields = ['name']
     list_filter = ('sectors', 'city', 'company')
@@ -33,6 +33,7 @@ class PersonAdmin(AuditingAdminModelMixin, admin.ModelAdmin):
             'city',
             'notes',
             'slug',
+            'level',
         ]}), 
         ('Personal information', { 'fields': [
             'partner',
@@ -65,7 +66,6 @@ class GroupAdmin(AuditingAdminModelMixin, admin.ModelAdmin):
             'slug',
             'about',
             'people',
-            'companies',
         ]}), 
         auditing_fieldset,
     ]
@@ -82,11 +82,31 @@ class SectorAdmin(AuditingAdminModelMixin, admin.ModelAdmin):
         auditing_fieldset,
     ]
 
+class ConversationAdmin(AuditingAdminModelMixin, admin.ModelAdmin):
+    readonly_fields = auditing_fields
+    list_display = ['people_str', 'summary', 'date', 'seed']
+    search_fields = ['summary']
+    list_filter = ('date', 'mode', 'seed')
+    fieldsets = [
+        (None, { 'fields': [
+            'people', 
+            'date',
+            'summary',
+            'mode',
+            'seed',
+        ]}), 
+        ('Details', { 'fields': [
+            'location',
+            'notes',
+        ]}),
+        auditing_fieldset,
+    ]
+
 admin.site.register(Person, PersonAdmin)
 admin.site.register(Company, CompanyAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Sector, SectorAdmin)
-
+admin.site.register(Conversation, ConversationAdmin)
 
 
     

@@ -12,7 +12,7 @@
     </h1>
     <ul class="list-group">
       {% for person in person_list %}
-        <a class="list-group-item" href="{% url 'person_detail' person.slug %}">
+        <a class="list-group-item hoverable" href="{% url 'person_detail' person.slug %}">
           <i class="fas fa-user"></i>
           {{ person }}
           <span class="badge badge-secondary float-right">{{ person.city }}</span>

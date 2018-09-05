@@ -80,7 +80,6 @@ class PersonDelete(AccessMixin, DeleteView):
     template_name = 'people/delete.html'
     success_url = reverse_lazy('people_list')
 
-
 class ConversationList(LoginRequiredMixin, ListView):
     """List all conversations, optionally for a single person or sector."""
     model = Conversation

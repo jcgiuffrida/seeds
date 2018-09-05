@@ -30,6 +30,7 @@ class Person(BaseModel):
     address = models.TextField(default='', blank=True)
 
     notes = models.TextField(default='', blank=True)
+    level = models.FloatField(default=0, editable=False, help_text="Classification of contact")
 
     class Meta:
         verbose_name_plural = 'people'
@@ -133,7 +134,8 @@ class Conversation(BaseModel):
     summary = models.CharField(max_length=64, blank=False)
     seed = models.BooleanField(default=False, help_text='Check if this conversation was a "seed", trying to set up a conversation.')
     date = models.DateField(default=timezone.now, help_text='Enter in any format.')
-    notes = models.TextField(help_text='A summary of the conversation.')
+    location = models.CharField(max_length=32, default='', blank=True)
+    notes = models.TextField(help_text='A summary of the conversation.', blank=True)
 
     class Meta:
         ordering = ('-date', 'mode')
@@ -164,18 +166,18 @@ class Conversation(BaseModel):
             return str(people[0])
         elif len(people) == 2:
             return '{0} & {1}'.format(
-                people[0],
-                people[1],
+                people[0].first_name,
+                people[1].first_name,
             )
         elif len(people) == 3:
             return '{0}, {1}, and {2}'.format(
-                people[0],
-                people[1],
-                people[2])
+                people[0].first_name,
+                people[1].first_name,
+                people[2].first_name)
         else:
             return '{0}, {1}, and {2} others'.format(
-                people[0],
-                people[1],
+                people[0].first_name,
+                people[1].first_name,
                 len(people) - 2)
 
     def get_mode_icon(self):

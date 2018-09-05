@@ -2,9 +2,9 @@ from django import forms
 from django.core.validators import RegexValidator
 from django.utils import timezone
 
-from crispy_forms.bootstrap import FormActions, Tab, TabHolder, AppendedText
+from crispy_forms.bootstrap import FormActions, Tab, TabHolder, AppendedText, PrependedText
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Submit, HTML, Field, Row, Div
+from crispy_forms.layout import Layout, Submit, HTML, Field, Row, Div, Hidden
 
 from .models import Person, Conversation
 
@@ -90,7 +90,11 @@ class ConversationForm(forms.ModelForm):
                 Field('summary', wrapper_class='col-7 col-sm-8', placeholder='Summary'),
                 Field('seed', css_class='col-5 col-sm-4'),
                 Field('notes', wrapper_class='col-7 col-sm-8', placeholder='Notes from the conversation', rows=3),
-                Field('mode', wrapper_class='col-5 col-sm-4', css_class='select2-enable'),
+                Div(
+                    Field('mode', css_class='select2-enable'),
+                    Hidden('location', value=self.instance.location, placeholder='Location'), 
+                    css_class='col-5 col-sm-4',
+                ),
                 css_class='mt-3',
             ),
             Div(
@@ -121,13 +125,16 @@ class ConversationForm(forms.ModelForm):
 
     def clean_mode(self):
         """If the conversation was with >1 person, make sure it wasn't one-on-one"""
-        if (self.cleaned_data['mode'] == 'one on one' and 
-            len(self.cleaned_data['people']) > 1):
+        if self.cleaned_data['mode'] == 'one on one' and len(self.cleaned_data['people']) > 1:
             raise forms.ValidationError(
                 "If the conversation was with more than one person, select \"Group\" instead."
+            )
+        elif self.cleaned_data['mode'] == 'in group' and len(self.cleaned_data['people']) == 1:
+            raise forms.ValidationError(
+                "If the conversation was with only one person, select \"One on one\" instead."
             )
         return self.cleaned_data['mode']
 
     class Meta:
         model = Conversation
-        fields = ['people', 'mode', 'summary', 'seed', 'date', 'notes']
+        fields = ['people', 'mode', 'summary', 'seed', 'date', 'location', 'notes']
