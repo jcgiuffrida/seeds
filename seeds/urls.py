@@ -13,7 +13,7 @@ urlpatterns = [
     url(r'^dashboard/$', views.Home.as_view(), name='home'),
 
     # People
-    url(r'^people/$', views.PeopleList.as_view(), name='person_list'),
+    url(r'^people/$', views.PersonList.as_view(), name='person_list'),
     url(r'^people/add/$', views.PersonCreate.as_view(), name='person_create'),
     url(r'^people/(?P<slug>[\w-]+)/$', views.PersonDetail.as_view(), name='person_detail'),
     url(r'^people/(?P<slug>[\w-]+)/edit/$', views.PersonUpdate.as_view(), name='person_update'),

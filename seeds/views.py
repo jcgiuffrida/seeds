@@ -32,23 +32,80 @@ class About(TemplateView):
     """About page."""
     template_name = 'about.html'
 
-class PeopleList(LoginRequiredMixin, ListView):
+class PersonList(LoginRequiredMixin, ListView):
     """List of people."""
     model = Person
     template_name = 'person/list.html'
+    paginate_by = 12
+
+    def get_filters(self):
+        if hasattr(self, 'filters'):
+            return self.filters
+
+        filters = {}
+
+        sector = self.request.GET.get('sector')
+        company = self.request.GET.get('company')
+        city = self.request.GET.get('city')
+        level = self.request.GET.get('level')
+
+        selected_sector = None
+        selected_company = None
+        
+        if sector:
+            try:
+                selected_sector = Sector.objects.for_user(self.request.user).get(slug=sector)
+            except Sector.DoesNotExist:
+                pass
+
+        if company:
+            try:
+                selected_company = Company.objects.for_user(self.request.user).get(slug=company)
+            except Company.DoesNotExist:
+                pass
+
+        if level:
+            pass # TODO
+        
+        filters['sector'] = selected_sector
+        filters['company'] = selected_company
+        filters['city'] = city
+        filters['level'] = None
+        filters['filtered'] = any([
+            filters['sector'], filters['company'], filters['city'], filters['level'],
+        ])
+
+        self.filters = filters
+        return self.filters
 
     def get_queryset(self):
-        if self.request.GET.get('sector'):
-            return Person.objects.for_user(self.request.user).filter(sectors__slug=self.request.GET.get('sector'))
-        return Person.objects.for_user(self.request.user)
+        qs = Person.objects.for_user(self.request.user)
+        filters = self.get_filters()
+
+        if filters['sector']:
+            qs = qs.filter(sectors=filters['sector'])
+        if filters['company']:
+            qs = qs.filter(company=filters['company'])
+
+        if filters['city']:
+            qs = qs.filter(city__iexact=filters['city'])
+        
+        if filters['level']:
+            pass # TODO
+
+        return qs
 
     def get_context_data(self):
-        context = super(PeopleList, self).get_context_data()
+        context = super(PersonList, self).get_context_data()
+        companies = list(set([p.company for p in Person.objects.for_user(self.request.user) if p.company]))
+        companies.sort(key=lambda c: c.slug)
+        cities = list(set([p.city for p in Person.objects.for_user(self.request.user) if p.city]))
+        cities.sort()
         context.update({
             'sectors': Sector.objects.for_user(self.request.user),
-            'search': {
-                'sector': self.request.GET.get('sector'),
-            },
+            'companies': companies,
+            'cities': cities,
+            'search': self.filters,
         })
         return context
 
@@ -83,6 +140,7 @@ class ConversationList(LoginRequiredMixin, ListView):
     """List all conversations, optionally for a single person or sector."""
     model = Conversation
     template_name = 'conversations/list.html'
+    paginate_by = 3
 
     def get_queryset(self):
         qs = Conversation.objects.for_user(self.request.user)
@@ -147,7 +205,6 @@ class ConversationDelete(AccessMixin, DeleteView):
     model = Conversation
     template_name = 'conversations/delete.html'
     success_url = reverse_lazy('conversation_list')
-
 
 class CompanyList(LoginRequiredMixin, ListView):
     """List all companies."""

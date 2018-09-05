@@ -1,5 +1,7 @@
 {% extends "layout-wide.html" %}
 
+{% load custom_tags %}
+
 {% block title %}People{% endblock %}
 
 {% block content %}
@@ -8,7 +10,6 @@
     <a class="btn btn-primary float-right" href="{% url 'person_create' %}"><i class="fas fa-plus"></i> Add new person</a>
     <h1 class="mb-3">
       People
-      {% if search.sector %}<span class="badge badge-info">{{ search.sector|capfirst }}</span>{% endif %}
     </h1>
     <ul class="list-group">
       {% for person in person_list %}
@@ -17,27 +18,115 @@
           {{ person }}
           <span class="badge badge-secondary float-right">{{ person.city }}</span>
         </a>
+      {% empty %}
+        {% if search.filtered %}
+          <p>No people match the applied filters. <a class="btn btn-sm btn-info" href=".">Clear all filters</a></p>
+        {% else %}
+          <p>
+            You have not added any people yet. 
+            <a href="{% url 'person_create' %}">Start with your best friend!</a>
+          </p>
+        {% endif %}
       {% endfor %}
     </ul>
-  </div>
-  <div class="col-md-3">
-    <h3 class="border-bottom">Filters</h3>
-    <h4>Sector</h4>
-    {% if not search.sector %}
-      <button type="button" class="btn btn-secondary mb-2">All</button>
-    {% else %}
-      <a class="btn btn-outline-info mb-2" href="{% url 'person_list' %}">All</a>
+
+    {% if is_paginated %}
+      <nav aria-label="...">
+        <ul class="pagination justify-content-center mt-2">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?{% add_param_to_url request 'page' page_obj.previous_page_number %}">
+                Previous
+              </a>
+            </li>
+          {% endif %}
+          <li class="page-item disabled">
+            <a class="page-link">Page {{ page_obj.number }}</a>
+          </li>
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?{% add_param_to_url request 'page' page_obj.next_page_number %}">
+                Next
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
     {% endif %}
-    {% for sector in sectors %}
-      {% ifequal sector.slug search.sector %}
-        <button class="btn btn-secondary mb-2" type="button">{{ sector }}</button>
-      {% else %}
-        <a class="btn btn-outline-info mb-2" 
-          href="{% url 'person_list' %}?sector={{ sector.slug }}">
-          {{ sector }}
-        </a>
-      {% endifequal %}
-    {% endfor %}
+  </div>
+
+  <div class="col-md-3">
+    <form method="GET" action=".">
+      <div class="row justify-content-center">
+        <div class="col-12">
+          <h3>
+            {% if search.filtered %}
+              <a class="btn btn-sm btn-info float-right" href="."><i class="fas fa-undo-alt"></i> Clear filters</a>
+            {% endif %}
+            Filters
+          </h3>
+        </div>
+
+        <div class="col-sm-6 col-md-12">
+          <h5 class="border-top pt-2 mt-2">
+            <a href="{% url 'sector_list' %}" class="float-right text-muted"><i class="fal fa-list"></i></a>
+            Sector
+          </h5>
+          <input type="hidden" name="sector" value="{{ search.sector.slug|default:'' }}">
+          <button type="button" data-sector="" class="btn btn-sm
+            {% if not search.sector %}
+              btn-secondary
+            {% else %}
+              btn-outline-info
+            {% endif %}
+            mb-2 sector">All</button>
+          {% for sector in sectors %}
+            <button type="button" data-sector="{{ sector.slug }}" class="btn btn-sm
+              {% ifequal sector search.sector %}
+                btn-secondary
+              {% else %}
+                btn-outline-info
+              {% endifequal %}
+              mb-2 sector">{{ sector }}</button>
+          {% endfor %}
+        </div>
+
+        <div class="col-sm-6 col-md-12">
+          <h5 class="border-top pt-2 mt-2">
+            <a href="{% url 'company_list' %}" class="float-right text-muted"><i class="fal fa-list"></i></a>
+            Company
+          </h5>
+          <select name="company" class="form-control select2-enable">
+            <option value="">(None)</option>
+              }
+            {% for company in companies %}
+              <option value="{{ company.slug }}"
+                {% ifequal search.company.slug company.slug %}selected{% endifequal %}
+                >{{ company }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-sm-6 col-md-12">
+          <h5 class="border-top pt-2 mt-2">
+            City
+          </h5>
+          <select name="city" class="form-control select2-enable">
+            <option value="">(None)</option>
+              }
+            {% for city in cities %}
+              <option value="{{ city }}"
+                {% ifequal search.city|lower city|lower %}selected{% endifequal %}
+                >{{ city }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="w-100 border-bottom mx-3 my-2"></div>
+        <div class="col-6">
+          <button type="submit" class="btn btn-outline-info btn-block">Filter</button>
+        </div>
+    </form>
   </div>
 </div>
 {% endblock %}

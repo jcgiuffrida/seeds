@@ -24,8 +24,14 @@
       {% for conversation in conversation_list %}
         {% include 'conversations/list-item.html' with show_person=True %}
       {% empty %}
-        <p>You have not recorded any conversations yet. 
-          <a href="{% url 'conversation_create' %}">Start your first one!</a></p>
+        {% if search.filtered %}
+          <p>No people match the applied filters. <a href=".">Reset filters</a></p>
+        {% else %}
+          <p>
+            You have not recorded any conversations yet. 
+            <a href="{% url 'conversation_create' %}">Start your first one!</a>
+          </p>
+        {% endif %}
       {% endfor %}
     </ul>
   </div>

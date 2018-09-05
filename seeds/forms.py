@@ -40,7 +40,7 @@ class PersonForm(forms.ModelForm):
                         Div(
                             Field('company', css_class='select2-enable'),
                             HTML('''
-                                <a class="btn btn-sm btn-outline-primary" href="{% url 'about' %}" target="_blank">
+                                <a class="btn btn-sm btn-outline-primary" href="{% url 'company_create' %}" target="_blank">
                                     <i class="fas fa-plus"></i> Add company
                                 </a>'''),
                             css_class='col-6',

@@ -10,6 +10,7 @@ module.exports = (_ => {
 
   const regex = {
     people: /^\/people\//,
+    personList: /^\/people\/$/,
     conversations: /^\/conversations\//,
     conversationList: /^\/conversations\/$/,
     personDetail: /^\/people\/[\w-]+\//,
