@@ -153,3 +153,35 @@ class ConversationForm(forms.ModelForm):
     class Meta:
         model = Conversation
         fields = ['people', 'mode', 'summary', 'seed', 'date', 'location', 'notes']
+
+class CompanyForm(forms.ModelForm):
+    """Form for a company."""
+    def __init__(self, *args, **kwargs):
+        super(CompanyForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field('name', autofocus=""),
+            Div(
+                Submit('submit', 'Save company'),
+            ),
+        )
+
+    class Meta:
+        model = Company
+        fields = ['name']
+
+class SectorForm(forms.ModelForm):
+    """Form for a sector."""
+    def __init__(self, *args, **kwargs):
+        super(SectorForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field('name', autofocus=""),
+            Div(
+                Submit('submit', 'Save sector'),
+            ),
+        )
+
+    class Meta:
+        model = Sector
+        fields = ['name']

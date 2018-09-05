@@ -24,7 +24,7 @@ def slugify(obj, attribute=None):
 
     if obj.pk and obj.slug:
         # Already has a slug - check that slug_content hasn't changed
-        if dj_slugify(slug_content)[:max_length] in obj.slug:
+        if dj_slugify(slug_content)[:max_length] == obj.slug:
             # No change needed
             return obj.slug
 

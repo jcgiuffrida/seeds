@@ -10,6 +10,11 @@
 
 /* navbar */
 .navbar {
+  .navbar-nav {
+    flex-direction: row;
+    justify-content: center;
+  }
+
   .navbar-nav>li>a {
     padding: 7px 10px;
     text-align: center;
@@ -18,7 +23,6 @@
   @media (max-width: 767px){
     .navbar-nav>li>a {
       padding: 0px 7px;
-      text-align: left;
     }
   }
 

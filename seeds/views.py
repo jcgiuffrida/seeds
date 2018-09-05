@@ -5,9 +5,9 @@ from django.urls import reverse, reverse_lazy
 from django.shortcuts import redirect
 from django.views.generic import TemplateView, ListView, DetailView, UpdateView, CreateView, DeleteView
 
-from .forms import PersonForm, ConversationForm
+from .forms import PersonForm, ConversationForm, CompanyForm, SectorForm
 from .mixins import AccessMixin, UserFormMixin
-from .models import Person, Sector, Conversation
+from .models import Person, Sector, Company, Conversation
 
 class Home(TemplateView):
     """Home page."""
@@ -35,7 +35,7 @@ class About(TemplateView):
 class PeopleList(LoginRequiredMixin, ListView):
     """List of people."""
     model = Person
-    template_name = 'people/list.html'
+    template_name = 'person/list.html'
 
     def get_queryset(self):
         if self.request.GET.get('sector'):
@@ -55,19 +55,19 @@ class PeopleList(LoginRequiredMixin, ListView):
 class PersonDetail(AccessMixin, DetailView):
     """Page for a person."""
     model = Person
-    template_name = 'people/detail.html'
+    template_name = 'person/detail.html'
 
 class PersonUpdate(AccessMixin, UserFormMixin, UpdateView):
     """Page for a person."""
     model = Person
     form_class = PersonForm
-    template_name = 'people/update.html'
+    template_name = 'person/update.html'
 
 class PersonCreate(LoginRequiredMixin, UserFormMixin, CreateView):
     """Page for a person."""
     model = Person
     form_class = PersonForm
-    template_name = 'people/create.html'
+    template_name = 'person/create.html'
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
@@ -76,8 +76,8 @@ class PersonCreate(LoginRequiredMixin, UserFormMixin, CreateView):
 class PersonDelete(AccessMixin, DeleteView):
     """Page for a person."""
     model = Person
-    template_name = 'people/delete.html'
-    success_url = reverse_lazy('people_list')
+    template_name = 'person/delete.html'
+    success_url = reverse_lazy('person_list')
 
 class ConversationList(LoginRequiredMixin, ListView):
     """List all conversations, optionally for a single person or sector."""
@@ -147,3 +147,73 @@ class ConversationDelete(AccessMixin, DeleteView):
     model = Conversation
     template_name = 'conversations/delete.html'
     success_url = reverse_lazy('conversation_list')
+
+
+class CompanyList(LoginRequiredMixin, ListView):
+    """List all companies."""
+    model = Company
+    template_name = 'companies/list.html'
+
+    def get_queryset(self):
+        return (Company.objects.for_user(self.request.user)
+            .annotate(num_people=Count('people'))
+            .order_by('-num_people'))
+
+class CompanyUpdate(AccessMixin, UpdateView):
+    """Page for a company."""
+    model = Company
+    form_class = CompanyForm
+    template_name = 'companies/update.html'
+    success_url = reverse_lazy('company_list')
+
+class CompanyCreate(LoginRequiredMixin, CreateView):
+    """Page for a company."""
+    model = Company
+    form_class = CompanyForm
+    template_name = 'companies/create.html'
+    success_url = reverse_lazy('company_list')
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super(CompanyCreate, self).form_valid(form)
+
+class CompanyDelete(AccessMixin, DeleteView):
+    """Page for a company."""
+    model = Company
+    template_name = 'companies/delete.html'
+    success_url = reverse_lazy('company_list')
+
+class SectorList(LoginRequiredMixin, ListView):
+    """List all sectors."""
+    model = Sector
+    template_name = 'sectors/list.html'
+
+    def get_queryset(self):
+        return (Sector.objects.for_user(self.request.user)
+            .annotate(num_people=Count('people'))
+            .order_by('-num_people')
+            .distinct())
+
+class SectorUpdate(AccessMixin, UpdateView):
+    """Page for a sector."""
+    model = Sector
+    form_class = SectorForm
+    template_name = 'sectors/update.html'
+    success_url = reverse_lazy('sector_list')
+
+class SectorCreate(LoginRequiredMixin, CreateView):
+    """Page for a sector."""
+    model = Sector
+    form_class = SectorForm
+    template_name = 'sectors/create.html'
+    success_url = reverse_lazy('sector_list')
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super(SectorCreate, self).form_valid(form)
+
+class SectorDelete(AccessMixin, DeleteView):
+    """Page for a sector."""
+    model = Sector
+    template_name = 'sectors/delete.html'
+    success_url = reverse_lazy('sector_list')

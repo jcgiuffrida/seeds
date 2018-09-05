@@ -26,14 +26,14 @@
     {% if not search.sector %}
       <button type="button" class="btn btn-secondary mb-2">All</button>
     {% else %}
-      <a class="btn btn-outline-info mb-2" href="{% url 'people_list' %}">All</a>
+      <a class="btn btn-outline-info mb-2" href="{% url 'person_list' %}">All</a>
     {% endif %}
     {% for sector in sectors %}
       {% ifequal sector.slug search.sector %}
         <button class="btn btn-secondary mb-2" type="button">{{ sector }}</button>
       {% else %}
         <a class="btn btn-outline-info mb-2" 
-          href="{% url 'people_list' %}?sector={{ sector.slug }}">
+          href="{% url 'person_list' %}?sector={{ sector.slug }}">
           {{ sector }}
         </a>
       {% endifequal %}

@@ -1,0 +1,17 @@
+{% extends "layout-form.html" %}
+
+{% block title %}{{ company }} - Update{% endblock %}
+
+{% block before-form %}
+  <a class="btn btn-outline-primary float-right" href="{% url 'company_list' %}">View all companies</a>
+  <h1>Edit company</h1>
+{% endblock %}
+
+{% block after-form %}
+{% if company %}
+<form action="/companies/{{ company.slug }}/delete/" method="post">
+  {% csrf_token %}
+  <button class="btn btn-danger float-right" type="submit">Remove company</button>
+</form>
+{% endif %}
+{% endblock %}

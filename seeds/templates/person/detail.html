@@ -15,11 +15,11 @@
     {% if person.partner %}
       <p><b>Partner:</b> <a href="{% url 'person_detail' person.partner.slug %}">{{ person.partner }}</a></p>
     {% endif %}
-    {% if person.known_via %}
+    {% if person.known_via and not person.known_via == person.partner %}
       <p><b>Known via:</b> <a href="{% url 'person_detail' person.known_via.slug %}">{{ person.known_via }}</a></p>
     {% endif %}
     {% if person.company %}
-      <p><b>Company:</b> {{ person.company }}</p>
+      <p><b>Company:</b> <a href="{% url 'person_list' %}?company={{ person.company.slug }}">{{ person.company }}</a></p>
     {% endif %}
     {% if person.birthday %}
       <p><b>Birthday:</b> {{ person.birthday|date:'F d' }}</p>
@@ -29,7 +29,7 @@
     {% endif %}
     {% for sector in person.sectors.all %}
       <a class="btn btn-secondary btn-outline" 
-        href="{% url 'people_list' %}?sector={{ sector.slug }}">
+        href="{% url 'person_list' %}?sector={{ sector.slug }}">
         {{ sector }}
       </a>
     {% endfor %}

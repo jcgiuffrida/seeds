@@ -79,11 +79,14 @@ class Company(BaseModel):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('person_list') + '?company=' + self.slug
     
 
 class Group(BaseModel):
     """A group of people."""
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=64)
     slug = models.SlugField(max_length=64, blank=True)
     about = models.TextField(blank=True)
     people = models.ManyToManyField(Person, blank=True)
@@ -98,9 +101,8 @@ class Group(BaseModel):
 
 class Sector(BaseModel):
     """A field where people work."""
-    name = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=64, blank=True)
-    description = models.TextField(default='', blank=True)
+    name = models.CharField(max_length=32)
+    slug = models.SlugField(max_length=32, blank=True)
 
     class Meta:
         ordering = ('name',)
@@ -108,6 +110,9 @@ class Sector(BaseModel):
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('person_list') + '?sector=' + self.slug
 
 
 class ConversationManager(UserManager):
