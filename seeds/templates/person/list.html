@@ -16,11 +16,7 @@
     </h1>
     <ul class="list-group">
       {% for person in person_list %}
-        <a class="list-group-item hoverable" href="{% url 'person_detail' person.slug %}">
-          <i class="fas fa-user"></i>
-          {{ person }}
-          <span class="badge badge-secondary float-right">{{ person.city }}</span>
-        </a>
+        {% include 'person/list-item.html' %}
       {% empty %}
         {% if search.filtered %}
           <p>No people match the applied filters. <a class="btn btn-sm btn-info" href=".">Clear all filters</a></p>
@@ -58,7 +54,7 @@
     {% endif %}
   </div>
 
-  <div class="col-md-3">
+  <div class="col-md-3 mt-3">
     <form method="GET" action=".">
       <div class="row justify-content-center">
         <div class="col-12">

@@ -1,12 +1,79 @@
-{% extends "layout.html" %}
+{% extends "layout-wide.html" %}
 
 {% block title %}Home{% endblock %}
 
 {% block content %}
 <div class="row">
-  <div class="col">
+  <div class="col-12 mb-3">
     <h1>Dashboard</h1>
-    <p>Hello cookie</p>
+  </div>
+  <div class="col-12 col-sm-7">
+    <div class="card mb-3">
+      <div class="card-body">
+        <h4 class="card-title">
+          {% if conversation_list %}
+            <a class="btn btn-sm btn-info float-right" href="{% url 'conversation_list' %}">See all</a>
+          {% endif %}
+          Recent conversations
+        </h4>
+        <ul class="list-group list-group-flush">
+          {% for conversation in conversation_list %}
+            {% include 'conversations/list-item.html' with show_person=True %}
+          {% empty %}
+            <p>
+              You have not recorded any conversations yet. 
+              <a class="btn btn-sm btn-info" href="{% url 'conversation_create' %}">Add your first one!</a>
+            </p>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <h4 class="card-title">
+          {% if seed_list %}
+            <a class="btn btn-sm btn-info float-right" href="{% url 'conversation_list' %}?seeds=on">See all</a>
+          {% endif %}
+          Recent seeds
+        </h4>
+        <h5>
+          <small class="text-muted">
+            A <b>seed</b> is contacting someone to catch up, stay in touch, or set up a conversation.
+          </small>
+        </h5>
+        <ul class="list-group list-group-flush">
+          {% for conversation in seed_list %}
+            {% include 'conversations/list-item.html' with show_person=True %}
+          {% empty %}
+            <p>
+              You have not recorded any seeds yet.
+            </p>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-sm-5">
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <h4 class="card-title">
+          <a class="btn btn-sm btn-info float-right" href="{% url 'person_list' %}?seeds=on">See all</a>
+          Newest contacts
+        </h4>
+        <ul class="list-group list-group-flush">
+          {% for person in new_people %}
+            {% include 'person/list-item.html' %}
+          {% empty %}
+            <p>
+              You have not added any people in the past month.
+            </p>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

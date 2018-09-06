@@ -23,11 +23,17 @@ class Home(TemplateView):
 
     def get_context_data(self):
         context = super(Home, self).get_context_data()
+        new_people = (Person.objects.for_user(self.request.user)
+                .filter(created_on__gte=timezone.now() - timedelta(days=30))
+                .order_by('-created_on'))[:4]
+        conversation_list = (Conversation.objects.for_user(self.request.user)
+                .filter(seed=False))[:4]
+        seed_list = (Conversation.objects.for_user(self.request.user)
+                .filter(seed=True))[:4]
         context.update({
-            'recent_conversations': Conversation.objects.for_user(self.request.user)[:8],
-            'top_people': (Person.objects.for_user(self.request.user)
-                .annotate(num_conversations=Count('conversations'))
-                .order_by('-num_conversations'))[:8],
+            'conversation_list': conversation_list,
+            'seed_list': seed_list,
+            'new_people': new_people,
         })
         return context
 
