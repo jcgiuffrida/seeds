@@ -5,7 +5,15 @@
 {% block content %}
 <div class="row">
   <div class="col-12 mb-3">
-    <h1>Dashboard</h1>
+    <h1>
+      <a class="btn btn-outline-info float-right ml-3" href="{% url 'person_create' %}">
+        <i class="fas fa-plus"></i> New person
+      </a>
+      <a class="btn btn-outline-info float-right ml-3" href="{% url 'conversation_create' %}">
+        <i class="fas fa-comment-lines"></i> New conversation
+      </a>
+      Dashboard
+    </h1>
   </div>
   <div class="col-12 col-sm-7">
     <div class="card mb-3">

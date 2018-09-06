@@ -1,13 +1,16 @@
+{% load custom_tags %}
+
 <a class="list-group-item hoverable" href="{% url 'conversation_detail' conversation.pk %}">
   {% if conversation.seed %}
     <i class="fas fa-fw fa-seedling text-success" title="This was a seed"></i>
   {% else %}
-    <i class="far fa-fw {{ conversation.get_mode_icon }}" title="{{ conversation.get_mode_display }}"></i>
+    <i class="{% if conversation.mode == 'skype' %}fab{% else %}far{% endif %}
+      fa-fw {{ conversation.get_mode_icon }}" title="{{ conversation.get_mode_display }}"></i>
   {% endif %}
   {% if conversation.notes %}
     <i class="far fa-comment-lines float-right"></i>
   {% endif %}
-  <span class="badge badge-secondary mx-1">{{ conversation.date|date:'n/j' }}</span>
+  <span class="badge badge-secondary mx-1">{{ conversation.date|date:'n/j' }}{% if not conversation.date|within_days:365 %}/{{ conversation.date|date:'y' }} {% endif %}</span>
   {% if show_person %}
     <b>{{ conversation.people_str }}</b> - 
   {% endif %}

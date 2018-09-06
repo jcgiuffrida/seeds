@@ -15,16 +15,16 @@
 <body>
   {% include "navbar.html" %}
   <div class="main container-fluid">
-    <div class="col messages">
-      {% if messages %}
+    {% if messages %}
+      <div class="col messages mt-3">
         {% for message in messages %}
           <div class="col alert alert-{{ message.tags }} warning alert-dismissible" role="alert">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             {{ message|safe }}
           </div>
         {% endfor %}
-      {% endif %}
-    </div>
+      </div>
+    {% endif %}
 
     {% block body-content %}
     <div class="content">

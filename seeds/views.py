@@ -1,11 +1,12 @@
 """Views for the app."""
 from datetime import timedelta
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.shortcuts import redirect
 from django.views.generic import TemplateView, ListView, DetailView, UpdateView, CreateView, DeleteView
 
 from .forms import PersonForm, ConversationForm, CompanyForm, SectorForm
@@ -45,7 +46,7 @@ class PersonList(LoginRequiredMixin, ListView):
     """List of people."""
     model = Person
     template_name = 'person/list.html'
-    paginate_by = 12
+    paginate_by = 10
 
     def get_filters(self):
         if hasattr(self, 'filters'):
@@ -137,6 +138,10 @@ class PersonCreate(LoginRequiredMixin, UserFormMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
+        messages.success(self.request, '{0} added. <a href="{1}">Add another person</a>'.format(
+            form.instance.name,
+            reverse('person_create'))
+        )
         return super(PersonCreate, self).form_valid(form)
 
 class PersonDelete(AccessMixin, DeleteView):
@@ -149,7 +154,7 @@ class ConversationList(LoginRequiredMixin, ListView):
     """List all conversations, optionally for a single person or sector."""
     model = Conversation
     template_name = 'conversations/list.html'
-    paginate_by = 12
+    paginate_by = 10
 
     def get_filters(self):
         if hasattr(self, 'filters'):
@@ -237,6 +242,9 @@ class ConversationCreate(LoginRequiredMixin, UserFormMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
+        messages.success(self.request, 'Conversation added. <a href="{0}">Add another one</a>'.format(
+            reverse('conversation_create'))
+        )
         return super(ConversationCreate, self).form_valid(form)
 
     def get_form_kwargs(self):
