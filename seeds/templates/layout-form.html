@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block body-content %}
+
+<div class="row content justify-content-center">
+  <div class="col-sm-8">
+
+    {% block before-form %}{% endblock %}
+    
+    {% if form and form.errors %}
+      {% for error in form.non_field_errors %}
+        <div class="alert alert-danger">
+          <strong>{{ error|escape }}</strong>
+        </div>
+      {% endfor %}
+      {% for field in form %}
+        {% for error in field.errors %}
+          <div class="alert alert-danger" role="alert">
+            <strong>Error:</strong> {{ error|escape }}
+          </div>
+        {% endfor %}
+      {% endfor %}
+    {% endif %}
+
+    {% block form %}
+      {% crispy form %}
+    {% endblock %}
+    
+    {% block after-form %}{% endblock %}
+
+  </div>
+</div>
+
+{% endblock body-content %}
+        

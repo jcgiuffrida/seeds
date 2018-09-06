@@ -1,0 +1,33 @@
+{% extends "layout-wide.html" %}
+
+{% block title %}Companies{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col col-sm-6">
+    <a class="btn btn-primary float-right" href="{% url 'company_create' %}"><i class="fas fa-plus"></i> Add new company</a>
+    <h1 class="mb-3">
+      Companies
+    </h1>
+    <ul class="list-group">
+      {% for company in company_list %}
+        <li class="list-group-item">
+          <a href="{% url 'company_update' company.slug %}"><i class="fas fa-fw fa-edit"></i></a>
+          {{ company }}
+          {% if company.num_people %}
+            <a class="btn btn-sm btn-outline-info float-right" 
+              href="{% url 'person_list' %}?company={{ company.slug }}">
+              {{ company.num_people }} pe{{ company.num_people|pluralize:"rson,ople" }}
+            </a>
+          {% else %}
+            <span class="badge text-info float-right">0 people</span>
+          {% endif %}
+        </li>
+      {% empty %}
+        <li class="list-group-item">You have not created any companies yet.</li>
+        <a class="btn btn-block" href="{% url 'company_create' %}">Record your first one</a>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

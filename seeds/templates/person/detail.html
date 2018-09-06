@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ person }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-12">
+    <a class="btn btn-outline-primary float-right" href="{% url 'person_update' person.slug %}">Edit</a>
+    <a class="btn btn-primary float-right mr-3" href="{% url 'conversation_create' %}?person={{ person.slug }}"><i class="fas fa-comment-lines"></i> New conversation</a>
+    <h1>{{ person }}</h1>
+  </div>
+  <div class="col-sm-6 col-md-4 mb-3">
+    <h4>Details</h4>
+    <p><b>City:</b> {{ person.city|default:'Unknown' }}</p>
+    {% if person.partner %}
+      <p><b>Partner:</b> <a href="{% url 'person_detail' person.partner.slug %}">{{ person.partner }}</a></p>
+    {% endif %}
+    {% if person.known_via and not person.known_via == person.partner %}
+      <p><b>Known via:</b> <a href="{% url 'person_detail' person.known_via.slug %}">{{ person.known_via }}</a></p>
+    {% endif %}
+    {% if person.company %}
+      <p><b>Company:</b> <a href="{% url 'person_list' %}?company={{ person.company.slug }}">{{ person.company }}</a></p>
+    {% endif %}
+    {% if person.birthday %}
+      <p><b>Birthday:</b> {{ person.birthday|date:'F d' }}</p>
+    {% endif %}
+    {% if person.address %}
+      <div><b>Address</b> {{ person.address|linebreaks }}</div>
+    {% endif %}
+    {% for sector in person.sectors.all %}
+      <a class="btn btn-secondary btn-outline" 
+        href="{% url 'person_list' %}?sector={{ sector.slug }}">
+        {{ sector }}
+      </a>
+    {% endfor %}
+  </div>
+  <div class="col-sm-6 col-md-3 mb-3">
+    <h4>Notes</h4>
+    {{ person.notes|default:'Nothing yet.' }}
+  </div>
+  <div class="col mb-3">
+    <div class="card">
+      <div class="card-body">
+        <h4 class="card-title">Conversations</h4>
+        <ul class="list-group list-group-flush">
+          {% for conversation in person.conversations.all|slice:":5" %}
+            {% if forloop.counter < 5 %}
+              {% include 'conversations/list-item.html' %}
+            {% else %}
+              <a class="btn btn-primary btn-block" 
+                href="{% url 'conversation_list' %}?person={{ person.slug }}">
+                See all conversations</a>
+            {% endif %}
+          {% empty %}
+            <li class="list-group-item">No recorded conversations.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

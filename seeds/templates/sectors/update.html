@@ -1,0 +1,17 @@
+{% extends "layout-form.html" %}
+
+{% block title %}{{ sector }} - Update{% endblock %}
+
+{% block before-form %}
+  <a class="btn btn-outline-primary float-right" href="{% url 'sector_list' %}">View all sectors</a>
+  <h1>Edit sector</h1>
+{% endblock %}
+
+{% block after-form %}
+{% if sector %}
+<form action="/sectors/{{ sector.slug }}/delete/" method="post">
+  {% csrf_token %}
+  <button class="btn btn-danger float-right" type="submit">Remove sector</button>
+</form>
+{% endif %}
+{% endblock %}

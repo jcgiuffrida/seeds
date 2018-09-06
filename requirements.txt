@@ -1,3 +1,12 @@
+# Base
 Django==2.1
 django-crispy-forms==1.7.2
+django-hashid-field  # note this requires django <2.1 but works with 2.1
 pytz==2018.5
+docutils
+https://github.com/darklow/django-suit/tarball/v2
+
+# Development
+ipdb
+django-debug-toolbar==1.9
+pylint

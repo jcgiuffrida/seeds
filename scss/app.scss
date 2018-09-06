@@ -2,3 +2,79 @@
 @import "~bootstrap/scss/bootstrap";
 @import "vendor/bootswatch/materia-variables";
 @import "vendor/bootswatch/materia";
+@import "vendor/bootstrap switch/switch";
+
+.content {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* navbar */
+.navbar {
+  .navbar-nav {
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .navbar-nav>li>a {
+    padding: 7px 10px;
+    text-align: center;
+  }
+
+  @media (max-width: 767px){
+    .navbar-nav>li>a {
+      padding: 0px 7px;
+    }
+  }
+
+  .navbar-nav>li>a>i {
+    font-size: 1.4em;
+  }
+
+  /* Mobile styles */
+  .navbar-collapse.collapsing, 
+  .navbar-collapse.in {
+    text-align: center;
+  }
+}
+
+select.select2-enable {
+  width: 100%;
+}
+
+.text-hover-secondary:hover {
+  color: $secondary !important;
+  transition: color 0.15s;
+}
+
+@media(max-width: 767px){
+  .list-group-flush .list-group-item {
+    padding: 0.5rem;
+  }
+}
+
+.list-group-item.hoverable {
+  color: $dark;
+  transition: color 0.2s;
+  
+  .badge { 
+    font-size: 0.9rem; 
+    transition: background-color 0.2s;
+  }
+  
+  i { font-size: 1.1rem; }
+  
+  &:hover {
+    color: $info;
+    .badge { background-color: $info; }
+  }
+}
+
+.pl-4-5 {
+  padding-left: 2rem !important;
+}
+
+.badge-sm {
+  font-size: 50%;
+  vertical-align: middle;
+}

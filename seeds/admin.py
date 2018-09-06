@@ -2,9 +2,9 @@
 from django.contrib import admin
 
 from .mixins import AuditingAdminModelMixin
-from .models import Person, Company, Group, Sector
+from .models import Person, Company, Group, Sector, Conversation
 
-auditing_fields = ['active', 'created_by', 'created_on', 'modified_by', 'modified_on']
+auditing_fields = ['active', 'created_by', 'created_on', 'modified_on']
 auditing_fieldset = (
     'Auditing', { 
         'classes': ('collapse',),
@@ -12,7 +12,6 @@ auditing_fieldset = (
             'active',
             'created_by',
             'created_on',
-            'modified_by',
             'modified_on',
         ],
     })
@@ -22,9 +21,9 @@ class GroupInline(admin.TabularInline):
     extra = 0
 
 class PersonAdmin(AuditingAdminModelMixin, admin.ModelAdmin):
-    readonly_fields = auditing_fields
-    list_display = ['full_name', 'city', 'company']
-    search_fields = ['full_name']
+    readonly_fields = auditing_fields + ['level']
+    list_display = ['name', 'city', 'company']
+    search_fields = ['name']
     list_filter = ('sectors', 'city', 'company')
     inlines = (GroupInline,)
     fieldsets = [
@@ -32,20 +31,19 @@ class PersonAdmin(AuditingAdminModelMixin, admin.ModelAdmin):
             'first_name', 
             'last_name',
             'city',
-            'partner',
-            'company',
-            'sectors',
+            'notes',
+            'slug',
+            'level',
         ]}), 
         ('Personal information', { 'fields': [
+            'partner',
+            'known_via',
+            'company',
+            'sectors',
             'birthday',
         ]}),
         ('Contact information', { 'fields': [
-            'personal_email',
-            'work_email',
-            'personal_phone',
-            'work_phone',
             'address',
-            'other_contact_info',
         ]}),
         auditing_fieldset,
     ]
@@ -68,7 +66,6 @@ class GroupAdmin(AuditingAdminModelMixin, admin.ModelAdmin):
             'slug',
             'about',
             'people',
-            'companies',
         ]}), 
         auditing_fieldset,
     ]
@@ -85,11 +82,31 @@ class SectorAdmin(AuditingAdminModelMixin, admin.ModelAdmin):
         auditing_fieldset,
     ]
 
+class ConversationAdmin(AuditingAdminModelMixin, admin.ModelAdmin):
+    readonly_fields = auditing_fields
+    list_display = ['people_str', 'summary', 'date', 'seed']
+    search_fields = ['summary']
+    list_filter = ('date', 'mode', 'seed')
+    fieldsets = [
+        (None, { 'fields': [
+            'people', 
+            'date',
+            'summary',
+            'mode',
+            'seed',
+        ]}), 
+        ('Details', { 'fields': [
+            'location',
+            'notes',
+        ]}),
+        auditing_fieldset,
+    ]
+
 admin.site.register(Person, PersonAdmin)
 admin.site.register(Company, CompanyAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Sector, SectorAdmin)
-
+admin.site.register(Conversation, ConversationAdmin)
 
 
     

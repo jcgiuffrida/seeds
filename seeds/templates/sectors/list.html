@@ -1,0 +1,33 @@
+{% extends "layout-wide.html" %}
+
+{% block title %}Sectors{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col col-sm-6">
+    <a class="btn btn-primary float-right" href="{% url 'sector_create' %}"><i class="fas fa-plus"></i> Add new sector</a>
+    <h1 class="mb-3">
+      Sectors
+    </h1>
+    <ul class="list-group">
+      {% for sector in sector_list %}
+        <li class="list-group-item">
+          <a href="{% url 'sector_update' sector.slug %}"><i class="fas fa-fw fa-edit"></i></a>
+          {{ sector }}
+          {% if sector.num_people %}
+            <a class="btn btn-sm btn-outline-info float-right" 
+              href="{% url 'person_list' %}?sector={{ sector.slug }}">
+              {{ sector.num_people }} pe{{ sector.num_people|pluralize:"rson,ople" }}
+            </a>
+          {% else %}
+            <span class="badge text-info float-right">0 people</span>
+          {% endif %}
+        </li>
+      {% empty %}
+        <li class="list-group-item">You have not created any sectors yet.</li>
+        <a class="btn btn-block" href="{% url 'sector_create' %}">Record your first one</a>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}
