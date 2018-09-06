@@ -49,6 +49,7 @@ class PersonList(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_filters(self):
+        """Record and validate filters from the GET parameters."""
         if hasattr(self, 'filters'):
             return self.filters
 
@@ -57,7 +58,6 @@ class PersonList(LoginRequiredMixin, ListView):
         sector = self.request.GET.get('sector')
         company = self.request.GET.get('company')
         city = self.request.GET.get('city')
-        level = self.request.GET.get('level')
 
         selected_sector = None
         selected_company = None
@@ -73,9 +73,6 @@ class PersonList(LoginRequiredMixin, ListView):
                 selected_company = Company.objects.for_user(self.request.user).get(slug=company)
             except Company.DoesNotExist:
                 pass
-
-        if level:
-            pass # TODO
         
         filters['sector'] = selected_sector
         filters['company'] = selected_company
@@ -89,6 +86,7 @@ class PersonList(LoginRequiredMixin, ListView):
         return self.filters
 
     def get_queryset(self):
+        """Apply filters to the queryset."""
         qs = Person.objects.for_user(self.request.user)
         filters = self.get_filters()
 
@@ -99,13 +97,11 @@ class PersonList(LoginRequiredMixin, ListView):
 
         if filters['city']:
             qs = qs.filter(city__iexact=filters['city'])
-        
-        if filters['level']:
-            pass # TODO
 
         return qs
 
     def get_context_data(self):
+        """Add extra querysets to the context."""
         context = super(PersonList, self).get_context_data()
         companies = list(set([p.company for p in Person.objects.for_user(self.request.user) if p.company]))
         companies.sort(key=lambda c: c.slug)
@@ -157,6 +153,7 @@ class ConversationList(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_filters(self):
+        """Record and validate filters from the GET parameters."""
         if hasattr(self, 'filters'):
             return self.filters
 
@@ -197,6 +194,7 @@ class ConversationList(LoginRequiredMixin, ListView):
         return self.filters
 
     def get_queryset(self):
+        """Apply filters to the queryset."""
         qs = Conversation.objects.for_user(self.request.user)
         filters = self.get_filters()
 
@@ -212,6 +210,7 @@ class ConversationList(LoginRequiredMixin, ListView):
         return qs
 
     def get_context_data(self):
+        """Add extra querysets to the context."""
         context = super(ConversationList, self).get_context_data()
         people = Person.objects.for_user(self.request.user).filter(conversations__isnull=False)
         context.update({
