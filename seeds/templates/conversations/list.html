@@ -1,23 +1,17 @@
 {% extends "layout-wide.html" %}
 
+{% load custom_tags %}
+
 {% block title %}Conversations{% endblock %}
 
 {% block content %}
-<div class="row">
-  <div class="col-md-9">
+<div class="row justify-content-center">
+  <div class="col-md-8">
     <a class="btn btn-primary float-right" href="{% url 'conversation_create' %}"><i class="fas fa-plus"></i> Add new conversation</a>
     <h1 class="mb-3">
       Conversations
-      {% if search.person %}
-        <span class="badge badge-info">
-          {{ search.person }}
-          <a href="{% url 'person_detail' search.person.slug %}"><i class="fas fa-user text-white text-hover-secondary"></i></a>
-        </span>
-      {% endif %}
-      {% if search.sector %}
-        <span class="badge badge-info">
-          {{ search.sector|capfirst }}
-        </span>
+      {% if search.filtered %}
+        <span class="badge badge-sm badge-info">Filtered</span>
       {% endif %}
     </h1>
     <ul class="list-group">
@@ -25,41 +19,137 @@
         {% include 'conversations/list-item.html' with show_person=True %}
       {% empty %}
         {% if search.filtered %}
-          <p>No people match the applied filters. <a href=".">Reset filters</a></p>
+          <p>No conversations match the applied filters. <a class="btn btn-sm btn-info" href=".">Clear all filters</a></p>
         {% else %}
-          <p>
-            You have not recorded any conversations yet. 
-            <a href="{% url 'conversation_create' %}">Start your first one!</a>
-          </p>
+        <p>
+          You have not recorded any conversations yet. 
+          <a href="{% url 'conversation_create' %}">Add your first one!</a>
+        </p>
         {% endif %}
       {% endfor %}
     </ul>
+
+    {% if is_paginated %}
+      <nav aria-label="...">
+        <ul class="pagination justify-content-center mt-2">
+          {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?{% add_param_to_url request 'page' page_obj.previous_page_number %}">
+                Previous
+              </a>
+            </li>
+          {% endif %}
+          <li class="page-item disabled">
+            <a class="page-link">Page {{ page_obj.number }}</a>
+          </li>
+          {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?{% add_param_to_url request 'page' page_obj.next_page_number %}">
+                Next
+              </a>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+    {% endif %}
   </div>
+
   <div class="col-md-3">
-    <h3 class="border-bottom">Filters</h3>
-    <h4 class="mt-3">Person</h4>
-    {% if search.person %}
-      <p class="lead text-info">
-        {{ search.person }}
-        <a href="{% url 'conversation_list' %}"><i class="fas fa-times text-primary"></i></a>
-      </p>
-    {% endif %}
-    <h4 class="mt-3">Sector</h4>
-    {% if not search.sector %}
-      <button type="button" class="btn btn-secondary mb-2">All</button>
-    {% else %}
-      <a class="btn btn-outline-info mb-2" href="{% url 'conversation_list' %}">All</a>
-    {% endif %}
-    {% for sector in sectors %}
-      {% ifequal sector.slug search.sector %}
-        <button class="btn btn-secondary mb-2" type="button">{{ sector }}</button>
-      {% else %}
-        <a class="btn btn-outline-info btn-outline mb-2" 
-          href="{% url 'conversation_list' %}?sector={{ sector.slug }}">
-          {{ sector }}
-        </a>
-      {% endifequal %}
-    {% endfor %}
+    <form method="GET" action=".">
+      <div class="row justify-content-center">
+        <div class="col-12">
+          <h3 class="border-bottom pb-2">
+            {% if search.filtered %}
+              <a class="btn btn-sm btn-info float-right" href="."><i class="fas fa-undo-alt"></i> Clear filters</a>
+            {% endif %}
+            Filters
+          </h3>
+        </div>
+
+        <div class="col-sm-6 col-md-12">
+          <span class="switch switch-sm">
+            <input type="checkbox" class="switch" name="seeds" id="seeds" {% if search.seeds %}checked {% endif %}>
+            <label for="seeds"> Show only seeds</label>
+          </span>
+        </div>
+
+        <div class="col-sm-6 col-md-12">
+          <h5 class="border-top pt-2 mt-2">
+            Date
+          </h5>
+          <input type="hidden" name="date" value="{{ search.date|default:'' }}">
+          <button type="button" data-value="" class="btn btn-sm
+            {% if not search.date %}
+              btn-secondary
+            {% else %}
+              btn-outline-info
+            {% endif %}
+            mb-2 btn-input">All</button>
+          {% for date in dates %}
+            <button type="button" data-value="{{ date }}" class="btn btn-sm
+              {% ifequal date search.date %}
+                btn-secondary
+              {% else %}
+                btn-outline-info
+              {% endifequal %}
+              mb-2 btn-input">{{ date|capfirst }}</button>
+          {% endfor %}
+        </div>
+
+        <div class="col-sm-6 col-md-12">
+          <h5 class="border-top pt-2 mt-2">
+            <a href="{% url 'sector_list' %}" class="float-right text-muted"><i class="fal fa-list"></i></a>
+            Sector
+          </h5>
+          <input type="hidden" name="sector" value="{{ search.sector.slug|default:'' }}">
+          <button type="button" data-value="" class="btn btn-sm
+            {% if not search.sector %}
+              btn-secondary
+            {% else %}
+              btn-outline-info
+            {% endif %}
+            mb-2 btn-input">All</button>
+          {% for sector in sectors %}
+            <button type="button" data-value="{{ sector.slug }}" class="btn btn-sm
+              {% ifequal sector search.sector %}
+                btn-secondary
+              {% else %}
+                btn-outline-info
+              {% endifequal %}
+              mb-2 btn-input">{{ sector }}</button>
+          {% endfor %}
+        </div>
+
+        <div class="col-sm-6 col-md-12">
+          <h5 class="border-top pt-2 mt-2">
+            Type
+          </h5>
+          <input type="hidden" name="mode" value="{{ search.mode|default:'' }}">
+          <button type="button" data-value="" class="btn btn-sm
+            {% if not search.mode %}
+              btn-secondary
+            {% else %}
+              btn-outline-info
+            {% endif %}
+            mb-2 btn-input">All</button>
+          {% for mode in modes %}
+            <button type="button" data-value="{{ mode.0 }}" class="btn btn-sm
+              {% ifequal mode.0 search.mode %}
+                btn-secondary
+              {% else %}
+                btn-outline-info
+              {% endifequal %}
+              mb-2 btn-input">{{ mode.1 }}</button>
+          {% endfor %}
+        </div>
+
+        <div class="w-100 border-bottom mx-3 my-2"></div>
+        <div class="col-6">
+          <button type="submit" class="btn btn-outline-info btn-block">
+            <i class="fas fa-filter"></i> Filter
+          </button>
+        </div>
+    </form>
   </div>
 </div>
 {% endblock %}

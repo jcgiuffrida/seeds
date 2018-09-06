@@ -10,6 +10,9 @@
     <a class="btn btn-primary float-right" href="{% url 'person_create' %}"><i class="fas fa-plus"></i> Add new person</a>
     <h1 class="mb-3">
       People
+      {% if search.filtered %}
+        <span class="badge badge-sm badge-info">Filtered</span>
+      {% endif %}
     </h1>
     <ul class="list-group">
       {% for person in person_list %}
@@ -73,21 +76,21 @@
             Sector
           </h5>
           <input type="hidden" name="sector" value="{{ search.sector.slug|default:'' }}">
-          <button type="button" data-sector="" class="btn btn-sm
+          <button type="button" data-value="" class="btn btn-sm
             {% if not search.sector %}
               btn-secondary
             {% else %}
               btn-outline-info
             {% endif %}
-            mb-2 sector">All</button>
+            mb-2 btn-input">All</button>
           {% for sector in sectors %}
-            <button type="button" data-sector="{{ sector.slug }}" class="btn btn-sm
+            <button type="button" data-value="{{ sector.slug }}" class="btn btn-sm
               {% ifequal sector search.sector %}
                 btn-secondary
               {% else %}
                 btn-outline-info
               {% endifequal %}
-              mb-2 sector">{{ sector }}</button>
+              mb-2 btn-input">{{ sector }}</button>
           {% endfor %}
         </div>
 
@@ -113,7 +116,6 @@
           </h5>
           <select name="city" class="form-control select2-enable">
             <option value="">(None)</option>
-              }
             {% for city in cities %}
               <option value="{{ city }}"
                 {% ifequal search.city|lower city|lower %}selected{% endifequal %}
@@ -124,7 +126,9 @@
 
         <div class="w-100 border-bottom mx-3 my-2"></div>
         <div class="col-6">
-          <button type="submit" class="btn btn-outline-info btn-block">Filter</button>
+          <button type="submit" class="btn btn-outline-info btn-block">
+            <i class="fas fa-filter"></i> Filter
+          </button>
         </div>
     </form>
   </div>

@@ -2,6 +2,7 @@
 @import "~bootstrap/scss/bootstrap";
 @import "vendor/bootswatch/materia-variables";
 @import "vendor/bootswatch/materia";
+@import "vendor/bootstrap switch/switch";
 
 .content {
   padding-top: 20px;
@@ -65,4 +66,9 @@ select.select2-enable {
 
 .pl-4-5 {
   padding-left: 2rem !important;
+}
+
+.badge-sm {
+  font-size: 50%;
+  vertical-align: middle;
 }

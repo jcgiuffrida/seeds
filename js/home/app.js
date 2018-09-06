@@ -33,19 +33,19 @@ const home = (_ => {
       });
     } else if (util.isPath('personList') || util.isPath('conversationList')){
       initSelect2();
-      $('button.sector').on('click', function(){
-        let $form = $(this).closest('form')
-        
-        // Translate sector buttons into form inputs
-        $form.find('button.sector')
+      $('button.btn-input').on('click', function(){
+        let $div = $(this).closest('div')
+
+        // Translate buttons into form inputs
+        $div.find('button.btn-input')
           .removeClass('btn-secondary')
           .addClass('btn-outline-info')
         $(this)
           .removeClass('btn-outline-info')
           .addClass('btn-secondary');
-        $form.find('input[name="sector"]')
-          .val($(this).data('sector'))
-        $form.find('button[type="submit"]')
+        $div.find('input')
+          .val($(this).data('value'))
+        $div.find('button[type="submit"]')
           .removeClass('btn-outline-info')
           .addClass('btn-info');
       })

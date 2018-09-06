@@ -11,6 +11,6 @@
     {% csrf_token %}
     <h3 class="text-danger">Are you sure you want to delete the data for {{ person }}?</h3>
     <button class="btn btn-danger" type="submit">Remove data for {{ person }}</button>
-    <a class="btn btn-outline-info" href="{% url 'person_update' person.slug %}">No, sorry, false alarm</a>
+    <a class="btn btn-outline-dark" href="{% url 'person_update' person.slug %}">No, sorry, false alarm</a>
   </form>
 {% endblock %}

@@ -1,7 +1,10 @@
 """Views for the app."""
+from datetime import timedelta
+
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Count
 from django.urls import reverse, reverse_lazy
+from django.utils import timezone
 from django.shortcuts import redirect
 from django.views.generic import TemplateView, ListView, DetailView, UpdateView, CreateView, DeleteView
 
@@ -140,29 +143,73 @@ class ConversationList(LoginRequiredMixin, ListView):
     """List all conversations, optionally for a single person or sector."""
     model = Conversation
     template_name = 'conversations/list.html'
-    paginate_by = 3
+    paginate_by = 12
+
+    def get_filters(self):
+        if hasattr(self, 'filters'):
+            return self.filters
+
+        filters = {}
+
+        sector = self.request.GET.get('sector')
+        mode = self.request.GET.get('mode')
+        seeds = self.request.GET.get('seeds')
+        date = self.request.GET.get('date')
+
+        selected_sector = None
+        date_since = None
+        
+        if sector:
+            try:
+                selected_sector = Sector.objects.for_user(self.request.user).get(slug=sector)
+            except Sector.DoesNotExist:
+                pass
+
+        if date:
+            date_since = {
+                'week': timezone.now() - timedelta(days=7),
+                'month': timezone.now() - timedelta(days=30),
+                'quarter': timezone.now() - timedelta(days=91),
+                'year': timezone.now() - timedelta(days=365),
+            }.get(date)
+        
+        filters['sector'] = selected_sector
+        filters['mode'] = mode
+        filters['date'] = date
+        filters['date_since'] = date_since
+        filters['seeds'] = seeds == 'on' or None
+        filters['filtered'] = any([
+            filters['sector'], filters['mode'], filters['seeds'], filters['date'],
+        ])
+
+        self.filters = filters
+        return self.filters
 
     def get_queryset(self):
         qs = Conversation.objects.for_user(self.request.user)
-        if self.request.GET.get('person'):
-            qs = qs.filter(people__slug=self.request.GET.get('person')).distinct()
-        if self.request.GET.get('sector'):
-            qs = qs.filter(people__sectors__slug=self.request.GET.get('sector')).distinct()
+        filters = self.get_filters()
+
+        if filters['sector']:
+            qs = qs.filter(people__sectors=filters['sector']).distinct()
+        if filters['mode']:
+            qs = qs.filter(mode__iexact=filters['mode'])
+        if filters['date_since']:
+            qs = qs.filter(date__gte=filters['date_since'])
+        if filters['seeds']:
+            qs = qs.filter(seed=True)
+
         return qs
 
     def get_context_data(self):
         context = super(ConversationList, self).get_context_data()
+        people = Person.objects.for_user(self.request.user).filter(conversations__isnull=False)
         context.update({
             'sectors': Sector.objects.for_user(self.request.user),
-            'people': Person.objects.for_user(self.request.user).filter(conversations__isnull=False),
-            'search': {
-                'sector': self.request.GET.get('sector'),
-            },
+            'people': people,
+            'modes': [c for c in Conversation.MODES if c[0]],
+            'dates': ['week', 'month', 'quarter', 'year'],
+            'search': self.filters,
         })
-        if self.request.GET.get('person'):
-            context['search']['person'] = (Person.objects.for_user(self.request.user)
-                .filter(slug=self.request.GET.get('person'))
-                .first())
         return context
 
 class ConversationDetail(AccessMixin, DetailView):
