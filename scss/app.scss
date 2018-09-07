@@ -39,6 +39,12 @@
   .navbar-collapse.collapsing, 
   .navbar-collapse.in {
     text-align: center;
+
+    .navbar-form[role="search"] .select2-container { top: 0; }
+  }
+
+  .navbar-form .api-search {
+    width: 275px;
   }
 }
 

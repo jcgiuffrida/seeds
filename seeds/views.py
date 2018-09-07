@@ -3,7 +3,9 @@ from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count
+from django.db.models import Count, Q, Value
+from django.db.models.functions import Concat
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -145,6 +147,48 @@ class PersonDelete(AccessMixin, DeleteView):
     model = Person
     template_name = 'person/delete.html'
     success_url = reverse_lazy('person_list')
+
+class PersonAPI(LoginRequiredMixin, ListView):
+    """Functions as a JSON API endpoint."""
+    model = Person
+    paginate_by = 8
+    http_method_names = ['get', 'head']
+
+    def get_queryset(self):
+        """Apply search term"""
+        qs = (Person.objects.for_user(self.request.user)
+                .select_related('partner', 'known_via')
+                .annotate(
+                    num_conversations=Count('conversations'),
+                    full_name=Concat('first_name', Value(' '), 'last_name'))
+                .order_by('-num_conversations', 'first_name', 'last_name')
+            )
+
+        # Filter using search term
+        q = self.request.GET.get('q')
+        if q:
+            q = q.lower().strip()
+            qs = qs.filter(Q(full_name__istartswith=q) | Q(last_name__istartswith=q))
+        
+        return qs
+
+    def get(self, request, *args, **kwargs):
+        """Convert to JSON response"""
+        self.object_list = self.get_queryset()
+        context = self.get_context_data()
+        people_list = list(context['object_list'])
+        people = [{
+            'name': p.name,
+            'id': p.slug,
+        } for p in people_list]
+
+        data = {
+            'page': context['page_obj'].number,
+            'more_results': context['page_obj'].has_next(),
+            'people': people,
+        }
+        return JsonResponse(data)
+
 
 class ConversationList(LoginRequiredMixin, ListView):
     """List all conversations, optionally for a single person or sector."""
