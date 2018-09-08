@@ -108,6 +108,8 @@ var home = function (_) {
   function init() {
     _utilities.default.init();
 
+    initSearchBar();
+
     if (_utilities.default.isPath('personEdit')) {
       (0, _jquery.default)(function () {
         initSelect2();
@@ -163,6 +165,73 @@ var home = function (_) {
           if (e.keyCode === 13) // enter
             control.select2("open");
         });
+      }
+    });
+  }
+
+  function initSearchBar() {
+    (0, _jquery.default)(".navbar-form .api-search").select2({
+      ajax: {
+        dataType: 'json',
+        delay: 150,
+        url: "/api/people/",
+        minimumInputLength: 1,
+        data: function data(params) {
+          params.term = params.term || '';
+          return {
+            q: params.term.trim(),
+            page: params.page || 1
+          };
+        },
+        processResults: function processResults(data, params) {
+          params.page = params.page || 1; // add links
+
+          var people = data.people.map(function (p) {
+            p.url = '/people/' + p.id;
+            p.text = p.name;
+            return p;
+          });
+          return {
+            results: people,
+            pagination: {
+              more: data.more_results
+            }
+          };
+        }
+      },
+      placeholder: '<i class="fas fa-user"></i> Type to find people',
+      escapeMarkup: function escapeMarkup(markup) {
+        return markup;
+      },
+      templateResult: function templateResult(d) {
+        if (d.loading) return 'Loading...';
+        return d.name;
+      },
+      language: {
+        errorLoading: function errorLoading() {
+          return "Loading...";
+        },
+        noResults: function noResults() {
+          return "No results found.";
+        }
+      }
+    });
+    (0, _jquery.default)('.navbar-form .api-search').on('change', function (e) {
+      // Try to handle CTRL+click or middle mouse click (or apple ⌘)
+      // from https://stackoverflow.com/questions/16190455/how-to-detect-controlclick-in-javascript-from-an-onclick-div-attribute
+      try {
+        if (window.event.ctrlKey || window.event.button == 1 || window.event.metaKey) {
+          // Go to link in new tab
+          window.open((0, _jquery.default)(this).select2('data')[0].url);
+        } else {
+          // Disable select2
+          (0, _jquery.default)(this).prop('disabled', true); // Go to link
+
+          window.location.href = (0, _jquery.default)(this).select2('data')[0].url;
+        }
+      } catch (err) {
+        (0, _jquery.default)(this).prop('disabled', true);
+        window.location.href = (0, _jquery.default)(this).select2('data')[0].url;
       }
     });
   }

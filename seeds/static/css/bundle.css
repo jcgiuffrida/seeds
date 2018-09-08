@@ -7975,8 +7975,8 @@ select.form-control {
   .switch + .switch {
     margin-left: 1rem; }
 
-.content {
-  padding-top: 20px;
+.main {
+  padding-top: 85px;
   padding-bottom: 20px; }
 
 .alert a {
@@ -8001,6 +8001,11 @@ select.form-control {
   .navbar .navbar-collapse.collapsing,
   .navbar .navbar-collapse.in {
     text-align: center; }
+    .navbar .navbar-collapse.collapsing .navbar-form[role="search"] .select2-container,
+    .navbar .navbar-collapse.in .navbar-form[role="search"] .select2-container {
+      top: 0; }
+  .navbar .navbar-form .api-search {
+    width: 275px; }
 
 select.select2-enable {
   width: 100%; }
@@ -8021,7 +8026,8 @@ select.select2-enable {
   transition: color 0.2s; }
   .list-group-item.hoverable .badge {
     font-size: 0.9rem;
-    transition: background-color 0.2s; }
+    transition: background-color 0.2s;
+    min-width: 2.8rem; }
   .list-group-item.hoverable i {
     font-size: 1.1rem; }
   .list-group-item.hoverable:hover {
