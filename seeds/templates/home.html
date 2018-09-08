@@ -20,7 +20,7 @@
     <a href="{% url 'home' %}?period={% if chart_period == 'week' %}month{% else %}week{% endif %}"
       class="btn btn-sm btn-outline-info float-right" style="z-index: 2">
       {% if chart_period == 'week' %}month{% else %}week{% endif %}ly view</a>
-    <div class="chart mb-3" data-period="{{ chart_period }}">
+    <div class="chart mb-5" data-period="{{ chart_period }}">
     </div>
 
     <div class="card mb-3">

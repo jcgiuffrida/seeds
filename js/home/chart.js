@@ -9,6 +9,7 @@ module.exports = (_ => {
         type: 'area',
         height: 400,
       },
+      colors: ['#6c757d', '#28a745'],
       title: {
         text: `Conversations by ${period}`,
       },
@@ -33,9 +34,6 @@ module.exports = (_ => {
         area: {
           stacking: 'normal',
         },
-      },
-      tooltip: {
-        split: true,
       },
       series: [{
         name: 'Conversations',

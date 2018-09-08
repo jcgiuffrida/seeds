@@ -278,6 +278,7 @@ module.exports = function (_) {
         type: 'area',
         height: 400
       },
+      colors: ['#6c757d', '#28a745'],
       title: {
         text: "Conversations by ".concat(period)
       },
@@ -302,9 +303,6 @@ module.exports = function (_) {
         area: {
           stacking: 'normal'
         }
-      },
-      tooltip: {
-        split: true
       },
       series: [{
         name: 'Conversations',

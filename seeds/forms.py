@@ -60,7 +60,7 @@ class PersonForm(forms.ModelForm):
             ),
             Div(
                 Submit('submit', 'Save person'),
-                HTML("""<a class="btn btn-danger float-right" href="{% url 'person_delete' person.slug %}">Delete</a>"""),
+                HTML("""<a class="btn btn-outline-danger float-right" href="{% url 'person_delete' person.slug %}">Delete</a>"""),
             ),
         )
         
@@ -111,7 +111,7 @@ class ConversationForm(forms.ModelForm):
             ),
             Div(
                 Submit('submit', 'Save conversation'),
-                HTML("""<a class="btn btn-danger float-right" href="{% url 'conversation_delete' conversation.pk %}">Delete</a>"""),
+                HTML("""<a class="btn btn-outline-danger float-right" href="{% url 'conversation_delete' conversation.pk %}">Delete</a>"""),
             ),
         )
 

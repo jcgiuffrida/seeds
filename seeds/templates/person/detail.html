@@ -47,7 +47,7 @@
             {% if forloop.counter < 5 %}
               {% include 'conversations/list-item.html' %}
             {% else %}
-              <a class="btn btn-primary btn-block" 
+              <a class="btn btn-outline-info btn-block" 
                 href="{% url 'conversation_list' %}?person={{ person.slug }}">
                 See all conversations</a>
             {% endif %}
