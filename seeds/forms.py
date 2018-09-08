@@ -145,10 +145,10 @@ class ConversationForm(forms.ModelForm):
             raise forms.ValidationError(
                 "If the conversation was with more than one person, select \"Group\" instead."
             )
-        elif self.cleaned_data['mode'] == 'in group' and len(self.cleaned_data['people']) == 1:
-            raise forms.ValidationError(
-                "If the conversation was with only one person, select \"One on one\" instead."
-            )
+        # elif self.cleaned_data['mode'] == 'in group' and len(self.cleaned_data['people']) == 1:
+        #     raise forms.ValidationError(
+        #         "If the conversation was with only one person, select \"One on one\" instead."
+        #     )
         return self.cleaned_data['mode']
 
     class Meta:
