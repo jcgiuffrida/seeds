@@ -14,19 +14,20 @@
     </h2>
     <p class="lead">
       {{ conversation.date }} - {{ conversation.get_mode_display }} 
-      <i class="fas {{ conversation.get_mode_icon }}"></i>
+      <i class="{% if conversation.mode == 'skype' %}fab{% else %}far{% endif %}
+        {{ conversation.get_mode_icon }}"></i>
       {% if conversation.location %}
         <span class="ml-5"><i class="fas fa-map-marker-alt"></i> {{ conversation.location }}</span>
       {% endif %}
     </p>
     {% for person in conversation.people.all %}
-      <a class="btn btn-lg btn-outline-dark" href="{% url 'conversation_list' %}?person={{ person.slug }}">{{ person }}</a>
+      <a class="btn btn-lg btn-outline-dark" href="{% url 'person_detail' person.slug %}">{{ person }}</a>
     {% empty %}
       <div class="alert alert-warning" role="alert">This conversation has no people! 
         <a href="{% url 'conversation_update' conversation.pk %}">Edit it</a></div>
     {% endfor %}
   </div>
-  <div class="col-md-4 mt-3">
+  <div class="col-8 mt-3">
     {% if conversation.notes %}
       <h3>Notes</h3>
       {{ conversation.notes }}

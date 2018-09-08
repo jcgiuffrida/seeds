@@ -67,6 +67,7 @@ class PersonForm(forms.ModelForm):
         # Remove "Delete" button
         if not self.instance.pk:
             self.helper.layout.fields[1].pop()
+            self.fields['sectors'].initial = [Sector.objects.filter(slug='friends').first()]
 
         # Adjust fields
         self.fields['sectors'].queryset = Sector.objects.for_user(user)

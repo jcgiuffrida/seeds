@@ -6,6 +6,8 @@ const home = (_ => {
   function init(){
     util.init()
 
+    initSearchBar()
+
     if (util.isPath('personEdit')){
       $(() => {
         initSelect2();
@@ -64,6 +66,68 @@ const home = (_ => {
           if (e.keyCode === 13) // enter
             control.select2("open");
         });
+      }
+    });
+  }
+
+  function initSearchBar(){
+    $(".navbar-form .api-search").select2({
+      ajax: {
+        dataType: 'json',
+        delay: 150,
+        url: "/api/people/",
+        minimumInputLength: 1,
+        data: function (params) {
+          params.term = params.term || '';
+          return {
+            q: params.term.trim(),
+            page: params.page || 1,
+          };
+        },
+        processResults: function(data, params){
+          params.page = params.page || 1;
+          // add links
+          var people = data.people.map(p => {
+            p.url = '/people/' + p.id;
+            p.text = p.name;
+            return p;
+          });
+          return {
+            results: people,
+            pagination: {
+              more: data.more_results,
+            }
+          };
+        },
+      },
+      placeholder: '<i class="fas fa-user"></i> Type to find people',
+      escapeMarkup: function (markup) { return markup; },
+      templateResult: function(d){
+        if (d.loading) return 'Loading...';
+        return d.name;
+      },
+      language: {
+        errorLoading: function(){ return "Loading..."; },
+        noResults: function(){ return "No results found." },
+      },
+    });
+
+    $('.navbar-form .api-search').on('change', function(e) {
+      // Try to handle CTRL+click or middle mouse click (or apple ⌘)
+      // from https://stackoverflow.com/questions/16190455/how-to-detect-controlclick-in-javascript-from-an-onclick-div-attribute
+      try {
+        if (window.event.ctrlKey || window.event.button == 1 || window.event.metaKey){
+          // Go to link in new tab
+          window.open($(this).select2('data')[0].url);
+        } else {
+          // Disable select2
+          $(this).prop('disabled', true);
+          // Go to link
+          window.location.href = $(this).select2('data')[0].url;
+        }
+      } catch (err){
+        $(this).prop('disabled', true);
+        window.location.href = $(this).select2('data')[0].url;
       }
     });
   }

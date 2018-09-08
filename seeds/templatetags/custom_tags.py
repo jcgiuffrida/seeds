@@ -1,4 +1,6 @@
+"""Custom tags for templates."""
 from django.template.defaulttags import register
+from django.utils import timezone
 
 @register.simple_tag
 def add_param_to_url(request, field, value):
@@ -6,3 +8,8 @@ def add_param_to_url(request, field, value):
     dict_ = request.GET.copy()
     dict_[field] = str(value)
     return dict_.urlencode()
+
+@register.filter
+def within_days(time, days):
+    """Check for a datetime is within the past `days` days; return True if yes."""
+    return time + timezone.timedelta(days=days) > timezone.today()

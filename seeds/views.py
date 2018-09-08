@@ -1,11 +1,14 @@
 """Views for the app."""
 from datetime import timedelta
 
+from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count
+from django.db.models import Count, Q, Value
+from django.db.models.functions import Concat
+from django.http import JsonResponse
+from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.shortcuts import redirect
 from django.views.generic import TemplateView, ListView, DetailView, UpdateView, CreateView, DeleteView
 
 from .forms import PersonForm, ConversationForm, CompanyForm, SectorForm
@@ -45,9 +48,10 @@ class PersonList(LoginRequiredMixin, ListView):
     """List of people."""
     model = Person
     template_name = 'person/list.html'
-    paginate_by = 12
+    paginate_by = 10
 
     def get_filters(self):
+        """Record and validate filters from the GET parameters."""
         if hasattr(self, 'filters'):
             return self.filters
 
@@ -56,7 +60,6 @@ class PersonList(LoginRequiredMixin, ListView):
         sector = self.request.GET.get('sector')
         company = self.request.GET.get('company')
         city = self.request.GET.get('city')
-        level = self.request.GET.get('level')
 
         selected_sector = None
         selected_company = None
@@ -72,9 +75,6 @@ class PersonList(LoginRequiredMixin, ListView):
                 selected_company = Company.objects.for_user(self.request.user).get(slug=company)
             except Company.DoesNotExist:
                 pass
-
-        if level:
-            pass # TODO
         
         filters['sector'] = selected_sector
         filters['company'] = selected_company
@@ -88,6 +88,7 @@ class PersonList(LoginRequiredMixin, ListView):
         return self.filters
 
     def get_queryset(self):
+        """Apply filters to the queryset."""
         qs = Person.objects.for_user(self.request.user)
         filters = self.get_filters()
 
@@ -98,13 +99,11 @@ class PersonList(LoginRequiredMixin, ListView):
 
         if filters['city']:
             qs = qs.filter(city__iexact=filters['city'])
-        
-        if filters['level']:
-            pass # TODO
 
         return qs
 
     def get_context_data(self):
+        """Add extra querysets to the context."""
         context = super(PersonList, self).get_context_data()
         companies = list(set([p.company for p in Person.objects.for_user(self.request.user) if p.company]))
         companies.sort(key=lambda c: c.slug)
@@ -137,6 +136,10 @@ class PersonCreate(LoginRequiredMixin, UserFormMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
+        messages.success(self.request, '{0} added. <a href="{1}">Add another person</a>'.format(
+            form.instance.name,
+            reverse('person_create'))
+        )
         return super(PersonCreate, self).form_valid(form)
 
 class PersonDelete(AccessMixin, DeleteView):
@@ -145,13 +148,56 @@ class PersonDelete(AccessMixin, DeleteView):
     template_name = 'person/delete.html'
     success_url = reverse_lazy('person_list')
 
+class PersonAPI(LoginRequiredMixin, ListView):
+    """Functions as a JSON API endpoint."""
+    model = Person
+    paginate_by = 8
+    http_method_names = ['get', 'head']
+
+    def get_queryset(self):
+        """Apply search term"""
+        qs = (Person.objects.for_user(self.request.user)
+                .select_related('partner', 'known_via')
+                .annotate(
+                    num_conversations=Count('conversations'),
+                    full_name=Concat('first_name', Value(' '), 'last_name'))
+                .order_by('-num_conversations', 'first_name', 'last_name')
+            )
+
+        # Filter using search term
+        q = self.request.GET.get('q')
+        if q:
+            q = q.lower().strip()
+            qs = qs.filter(Q(full_name__istartswith=q) | Q(last_name__istartswith=q))
+        
+        return qs
+
+    def get(self, request, *args, **kwargs):
+        """Convert to JSON response"""
+        self.object_list = self.get_queryset()
+        context = self.get_context_data()
+        people_list = list(context['object_list'])
+        people = [{
+            'name': p.name,
+            'id': p.slug,
+        } for p in people_list]
+
+        data = {
+            'page': context['page_obj'].number,
+            'more_results': context['page_obj'].has_next(),
+            'people': people,
+        }
+        return JsonResponse(data)
+
+
 class ConversationList(LoginRequiredMixin, ListView):
     """List all conversations, optionally for a single person or sector."""
     model = Conversation
     template_name = 'conversations/list.html'
-    paginate_by = 12
+    paginate_by = 10
 
     def get_filters(self):
+        """Record and validate filters from the GET parameters."""
         if hasattr(self, 'filters'):
             return self.filters
 
@@ -192,6 +238,7 @@ class ConversationList(LoginRequiredMixin, ListView):
         return self.filters
 
     def get_queryset(self):
+        """Apply filters to the queryset."""
         qs = Conversation.objects.for_user(self.request.user)
         filters = self.get_filters()
 
@@ -207,6 +254,7 @@ class ConversationList(LoginRequiredMixin, ListView):
         return qs
 
     def get_context_data(self):
+        """Add extra querysets to the context."""
         context = super(ConversationList, self).get_context_data()
         people = Person.objects.for_user(self.request.user).filter(conversations__isnull=False)
         context.update({
@@ -237,6 +285,9 @@ class ConversationCreate(LoginRequiredMixin, UserFormMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.created_by = self.request.user
+        messages.success(self.request, 'Conversation added. <a href="{0}">Add another one</a>'.format(
+            reverse('conversation_create'))
+        )
         return super(ConversationCreate, self).form_valid(form)
 
     def get_form_kwargs(self):

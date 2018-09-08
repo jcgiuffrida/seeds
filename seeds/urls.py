@@ -38,6 +38,9 @@ urlpatterns = [
     url(r'^companies/(?P<slug>[\w-]+)/$', views.CompanyUpdate.as_view(), name='company_update'),
     url(r'^companies/(?P<slug>[\w-]+)/delete/$', views.CompanyDelete.as_view(), name='company_delete'),
 
+    # API
+    url(r'^api/people/$', views.PersonAPI.as_view(), name='person_api'),
+
     # Admin
     url(r'^sanctum/doc/', include('django.contrib.admindocs.urls')),
     url(r'^sanctum/', admin.site.urls),

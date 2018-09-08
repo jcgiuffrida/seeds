@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark py-0 px-3">
+<nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark py-0 px-3">
   <a class="navbar-brand" href="{% url 'home' %}"><i class="fas fa-seedling"></i> Seeds</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
@@ -6,6 +6,7 @@
 
   <div class="collapse navbar-collapse" id="navbarSupportedContent">
     {% if user.is_authenticated %}
+
       <ul class="navbar-nav mr-auto">
         <li class="nav-item center-block people">
           <a class="nav-link" href="{% url 'person_list' %}"><i class="fa fa-users"></i> <br>People</a>
@@ -18,18 +19,30 @@
             <a class="nav-link" href="{% url 'admin:index' %}"><i class="fas fa-cogs"></i> <br>Admin</a>
           </li>
         {% endif %}
+        <li class="nav-item pt-3 pl-3">
+          <form class="navbar-form navbar-left" role="search">
+            <div class="form-group">
+              <select name="api-search" class="form-control api-search">
+                <option></option>
+              </select>
+            </div>
+          </form>
+        </li>
       </ul>
-    {% endif %}
-    
-    <ul class="nav navbar-nav navbar-right ml-auto">
-      {% if user.is_authenticated %}
+      <ul class="nav navbar-nav navbar-right ml-auto">
         <form id="logoutForm" action="/logout/?next=/" method="post">
           {% csrf_token %}
           <button type="submit" class="btn btn-secondary"><i class="fas fa-sign-out"></i> Log off</button>
         </form>
-      {% else %}
-          <a class="btn btn-info" href="{% url 'login' %}"><i class="fas fa-sign-in"></i> Log in</a>
-      {% endif %}
+      </ul>
+
+    {% else %}
+
+      <ul class="nav navbar-nav navbar-right ml-auto">
+        <a class="btn btn-info" href="{% url 'login' %}"><i class="fas fa-sign-in"></i> Log in</a>
+      </ul>
+
+    {% endif %}
     </ul>
   </div>
 </nav>
