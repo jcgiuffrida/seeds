@@ -4,8 +4,8 @@
 @import "vendor/bootswatch/materia";
 @import "vendor/bootstrap switch/switch";
 
-.content {
-  padding-top: 20px;
+.main {
+  padding-top: 85px;
   padding-bottom: 20px;
 }
 
@@ -74,6 +74,7 @@ select.select2-enable {
   .badge { 
     font-size: 0.9rem; 
     transition: background-color 0.2s;
+    min-width: 2.8rem;
   }
   
   i { font-size: 1.1rem; }
