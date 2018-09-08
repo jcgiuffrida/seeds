@@ -8042,6 +8042,9 @@ select.select2-enable {
   font-size: 50%;
   vertical-align: middle; }
 
+.chart {
+  height: 400px; }
+
 .select2-container {
   box-sizing: border-box;
   display: inline-block;

@@ -1,12 +1,21 @@
 import $ from 'jquery';
 import 'select2';
 import util from './utilities.js';
+import chart from './chart.js';
 
 const home = (_ => {
   function init(){
     util.init()
 
     initSearchBar()
+
+    if (util.isPath('dashboard')){
+      let chartPeriod = $('.chart').data('period')
+      fetch(`/api/trend/?period=${chartPeriod}`)
+        .then(data => data.json())
+        .then(data => chart.makeChart($('.chart'), data, 
+          chartPeriod[0].toUpperCase() + chartPeriod.slice(1)))
+    }
 
     if (util.isPath('personEdit')){
       $(() => {

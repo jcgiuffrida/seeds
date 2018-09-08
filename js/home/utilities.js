@@ -9,6 +9,7 @@ module.exports = (_ => {
   }
 
   const regex = {
+    dashboard: /^\/dashboard\//,
     people: /^\/people\//,
     personList: /^\/people\/$/,
     conversations: /^\/conversations\//,

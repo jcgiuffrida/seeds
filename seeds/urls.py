@@ -40,6 +40,7 @@ urlpatterns = [
 
     # API
     url(r'^api/people/$', views.PersonAPI.as_view(), name='person_api'),
+    url(r'^api/trend/$', views.TrendAPI.as_view(), name='trend_api'),
 
     # Admin
     url(r'^sanctum/doc/', include('django.contrib.admindocs.urls')),

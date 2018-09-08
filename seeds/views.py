@@ -14,6 +14,7 @@ from django.views.generic import TemplateView, ListView, DetailView, UpdateView,
 from .forms import PersonForm, ConversationForm, CompanyForm, SectorForm
 from .mixins import AccessMixin, UserFormMixin
 from .models import Person, Sector, Company, Conversation
+from .utils import count_by_week, count_by_month
 
 class Home(TemplateView):
     """Home page."""
@@ -33,10 +34,12 @@ class Home(TemplateView):
                 .filter(seed=False))[:4]
         seed_list = (Conversation.objects.for_user(self.request.user)
                 .filter(seed=True))[:4]
+        chart_period = self.request.GET.get('period', 'week')
         context.update({
             'conversation_list': conversation_list,
             'seed_list': seed_list,
             'new_people': new_people,
+            'chart_period': chart_period,
         })
         return context
 
@@ -188,7 +191,6 @@ class PersonAPI(LoginRequiredMixin, ListView):
             'people': people,
         }
         return JsonResponse(data)
-
 
 class ConversationList(LoginRequiredMixin, ListView):
     """List all conversations, optionally for a single person or sector."""
@@ -378,3 +380,17 @@ class SectorDelete(AccessMixin, DeleteView):
     model = Sector
     template_name = 'sectors/delete.html'
     success_url = reverse_lazy('sector_list')
+
+
+class TrendAPI(LoginRequiredMixin, TemplateView):
+    """Returns data with the trend in conversations."""
+    http_method_names = ['get', 'head']
+
+    def get(self, request, *args, **kwargs):
+        """Calculate data"""
+        period = request.GET.get('period', 'week')
+        if period == 'week':
+            data = count_by_week(Conversation.objects.for_user(self.request.user), days=90)
+        else:
+            data = count_by_month(Conversation.objects.for_user(self.request.user), months=12)
+        return JsonResponse(data)

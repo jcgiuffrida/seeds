@@ -10,6 +10,6 @@ def add_param_to_url(request, field, value):
     return dict_.urlencode()
 
 @register.filter
-def within_days(time, days):
-    """Check for a datetime is within the past `days` days; return True if yes."""
-    return time + timezone.timedelta(days=days) > timezone.today()
+def within_days(date, days):
+    """Check for a date is within the past `days` days; return True if yes."""
+    return date + timezone.timedelta(days=days) > timezone.now().date()
