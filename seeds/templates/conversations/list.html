@@ -77,6 +77,21 @@
 
         <div class="col-sm-6 col-md-12">
           <h5 class="border-top pt-2 mt-2">
+            Person
+          </h5>
+          <select name="person" class="form-control select2-enable">
+            <option value="">(None)</option>
+              }
+            {% for person in people %}
+              <option value="{{ person.slug }}"
+                {% ifequal search.person person %}selected{% endifequal %}
+                >{{ person }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-sm-6 col-md-12">
+          <h5 class="border-top pt-2 mt-2">
             Date
           </h5>
           <input type="hidden" name="date" value="{{ search.date|default:'' }}">

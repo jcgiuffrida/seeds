@@ -212,12 +212,19 @@ class ConversationList(LoginRequiredMixin, ListView):
         person = self.request.GET.get('person')
 
         selected_sector = None
+        selected_person = None
         date_since = None
         
         if sector:
             try:
                 selected_sector = Sector.objects.for_user(self.request.user).get(slug=sector)
             except Sector.DoesNotExist:
+                pass
+
+        if person:
+            try:
+                selected_person = Person.objects.for_user(self.request.user).get(slug=person)
+            except Person.DoesNotExist:
                 pass
 
         if date:
@@ -233,7 +240,7 @@ class ConversationList(LoginRequiredMixin, ListView):
         filters['date'] = date
         filters['date_since'] = date_since
         filters['seeds'] = seeds == 'on' or None
-        filters['person'] = person
+        filters['person'] = selected_person
         filters['filtered'] = any([
             filters['sector'], filters['mode'], filters['seeds'], filters['date'], filters['person'],
         ])
@@ -255,14 +262,14 @@ class ConversationList(LoginRequiredMixin, ListView):
         if filters['seeds']:
             qs = qs.filter(seed=True)
         if filters['person']:
-            qs = qs.filter(people__slug=filters['person'])
+            qs = qs.filter(people=filters['person'])
 
-        return qs
+        return qs.distinct()
 
     def get_context_data(self):
         """Add extra querysets to the context."""
         context = super(ConversationList, self).get_context_data()
-        people = Person.objects.for_user(self.request.user).filter(conversations__isnull=False)
+        people = Person.objects.for_user(self.request.user).filter(conversations__isnull=False).distinct()
         context.update({
             'sectors': Sector.objects.for_user(self.request.user),
             'people': people,
