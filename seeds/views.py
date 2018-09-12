@@ -209,6 +209,7 @@ class ConversationList(LoginRequiredMixin, ListView):
         mode = self.request.GET.get('mode')
         seeds = self.request.GET.get('seeds')
         date = self.request.GET.get('date')
+        person = self.request.GET.get('person')
 
         selected_sector = None
         date_since = None
@@ -232,8 +233,9 @@ class ConversationList(LoginRequiredMixin, ListView):
         filters['date'] = date
         filters['date_since'] = date_since
         filters['seeds'] = seeds == 'on' or None
+        filters['person'] = person
         filters['filtered'] = any([
-            filters['sector'], filters['mode'], filters['seeds'], filters['date'],
+            filters['sector'], filters['mode'], filters['seeds'], filters['date'], filters['person'],
         ])
 
         self.filters = filters
@@ -252,6 +254,8 @@ class ConversationList(LoginRequiredMixin, ListView):
             qs = qs.filter(date__gte=filters['date_since'])
         if filters['seeds']:
             qs = qs.filter(seed=True)
+        if filters['person']:
+            qs = qs.filter(people__slug=filters['person'])
 
         return qs
 

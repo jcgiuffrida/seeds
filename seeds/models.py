@@ -138,7 +138,7 @@ class Conversation(BaseModel):
     summary = models.CharField(max_length=64, blank=False)
     seed = models.BooleanField(default=False, help_text='Check if this conversation was a "seed", trying to set up a conversation.')
     date = models.DateField(default=timezone.now, help_text='Enter in any format.')
-    location = models.CharField(max_length=32, default='', blank=True)
+    location = models.CharField(max_length=64, default='', blank=True)
     notes = models.TextField(help_text='A summary of the conversation.', blank=True)
 
     class Meta:
