@@ -41,7 +41,7 @@ class Person(BaseModel):
             return (self.first_name + ' ' + self.last_name).strip()
         else:
             return '{0} ({1})'.format(self.first_name, 
-                str(self.partner) or str(self.known_via) or str(self.company) or '?',
+                str(self.partner or self.known_via or self.company or '?'),
             )
 
     def __str__(self):

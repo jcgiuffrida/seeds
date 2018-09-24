@@ -26,6 +26,9 @@ module.exports = (_ => {
 
   function init(){
     renderActiveTab()
+    $('form').on('submit', function(){
+      $(this).find('a.btn.submit, button[type="submit"], input[type="submit"]').prop('disabled', true);
+    });
   }
 
   return {
