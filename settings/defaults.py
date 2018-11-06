@@ -81,6 +81,7 @@ HASHID_FIELD_SALT = "i saw his round mouth's crimson"
 
 LOGIN_URL = reverse_lazy('login')
 LOGIN_REDIRECT_URL = reverse_lazy('home')
+KEEP_LOGGED_DURATION = 90*24*60*60  # three months; "remember me" on login
 
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'America/Chicago'
