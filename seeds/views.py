@@ -125,7 +125,7 @@ class PersonList(LoginRequiredMixin, ListView):
             .annotate(
                 num_conversations=Count('conversations'),
                 last_contact=Max('conversations__date')
-            ).order_by('-num_conversations', 'last_name', 'first_name'))
+            ).order_by('-last_contact', 'last_name', 'first_name'))
         filters = self.get_filters()
 
         if filters['sector']:

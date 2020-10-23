@@ -1,6 +1,7 @@
 """All forms live here."""
 from django import forms
 from django.utils import timezone
+from django.db.models import Count
 from datetime import timedelta
 
 from crispy_forms.bootstrap import Tab, TabHolder
@@ -102,16 +103,14 @@ class ConversationForm(forms.ModelForm):
                 Field('people', wrapper_class='col-7 col-sm-8', css_class='select2-enable'),
                 Field('date', wrapper_class='col-5 col-sm-4'),
                 Field('summary', wrapper_class='col-7 col-sm-8', placeholder='Summary'),
-                HTML(f'''
+                HTML('''
                     <div class="col-5 col-sm-4 form-group">
                         <div class="switch switch-sm mt-4-5 ml-0">
-                            <input type="checkbox" class="switch" name="seed" id="seed"
-                            {"checked" if is_seed else ""}>
-                            <label for="seed"> This is a seed</label>
+                            <input type="checkbox" class="switch" name="seed" id="seed"''' + ("checked" if is_seed else "") + '''
+                    ><label for="seed"> This is a seed</label>
                             <small id="hint_id_seed" class="form-text text-muted">One-way (not reciprocated)</small>
                         </div>
-                    </div>
-                '''),
+                    </div>'''),
                 Field('notes', wrapper_class='col-7 col-sm-8', placeholder='Notes from the conversation', rows=3),
                 Div(
                     Field('mode', css_class='select2-enable'),
@@ -132,7 +131,7 @@ class ConversationForm(forms.ModelForm):
             self.helper.layout.fields[0][0].autofocus = ''
         
         # Adjust fields
-        self.fields['people'].queryset = Person.objects.for_user(user)
+        self.fields['people'].queryset = Person.objects.for_user(user).annotate(num_conversations=Count('conversations')).order_by('-num_conversations', 'last_name', 'first_name')
         self.fields['date'].initial = timezone.now().date() - timedelta(hours=6)
         self.fields['people'].label = ''
         self.fields['mode'].label = ''

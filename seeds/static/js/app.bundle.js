@@ -157,7 +157,9 @@ var home = function (_) {
         $div.find('button.btn-input').removeClass('btn-secondary').addClass('btn-outline-info');
         (0, _jquery.default)(this).removeClass('btn-outline-info').addClass('btn-secondary');
         $div.find('input').val((0, _jquery.default)(this).data('value'));
-        $div.find('button[type="submit"]').removeClass('btn-outline-info').addClass('btn-info');
+        $div.find('button[type="submit"]').removeClass('btn-outline-info').addClass('btn-info'); // Submit form
+
+        (0, _jquery.default)(this).closest('form').trigger('submit');
       });
     }
   }
@@ -275,7 +277,7 @@ module.exports = function (_) {
     return new _highcharts.default.Chart({
       chart: {
         renderTo: $el[0],
-        type: 'area',
+        type: 'areaspline',
         height: 400
       },
       colors: ['#6c757d', '#28a745'],
