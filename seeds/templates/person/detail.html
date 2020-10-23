@@ -45,7 +45,7 @@
         <ul class="list-group list-group-flush">
           {% for conversation in person.conversations.all|slice:":5" %}
             {% if forloop.counter < 5 %}
-              {% include 'conversations/list-item.html' %}
+              {% include 'conversations/list-item.html' with show_notes=True %}
             {% else %}
               <a class="btn btn-outline-info btn-block" 
                 href="{% url 'conversation_list' %}?person={{ person.slug }}">

@@ -1,5 +1,5 @@
 <a class="list-group-item hoverable" href="{% url 'person_detail' person.slug %}">
-  <i class="fas fa-user"></i>
+  <i class="fas fa-user fa-fw"></i>
   {{ person }}
-  <span class="badge badge-info float-right">{{ person.last_contact|default:'Never' }}</span>
+  <span class="badge badge-info float-right">{{ person.last_contact|default:'' }}</span>
 </a>

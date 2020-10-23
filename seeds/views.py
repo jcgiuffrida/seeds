@@ -30,9 +30,9 @@ class Home(TemplateView):
         new_people = (Person.objects.for_user(self.request.user)
                 .filter(created_on__gte=timezone.now() - timedelta(days=30))
                 .order_by('-created_on'))[:4]
-        conversation_list = (Conversation.objects.for_user(self.request.user)
+        conversation_list = (Conversation.objects.for_user(self.request.user).prefetch_related('people')
                 .filter(seed=False))[:4]
-        seed_list = (Conversation.objects.for_user(self.request.user)
+        seed_list = (Conversation.objects.for_user(self.request.user).prefetch_related('people')
                 .filter(seed=True))[:4]
         chart_period = self.request.GET.get('period', 'week')
         ONE_QUARTER_AGO = timezone.now() - timedelta(days=91)
@@ -68,7 +68,7 @@ class PersonList(LoginRequiredMixin, ListView):
     """List of people."""
     model = Person
     template_name = 'person/list.html'
-    paginate_by = 10
+    paginate_by = 20
 
     def get_filters(self):
         """Record and validate filters from the GET parameters."""
@@ -232,7 +232,7 @@ class ConversationList(LoginRequiredMixin, ListView):
     """List all conversations, optionally for a single person or sector."""
     model = Conversation
     template_name = 'conversations/list.html'
-    paginate_by = 10
+    paginate_by = 20
 
     def get_filters(self):
         """Record and validate filters from the GET parameters."""
@@ -286,7 +286,7 @@ class ConversationList(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         """Apply filters to the queryset."""
-        qs = Conversation.objects.for_user(self.request.user)
+        qs = Conversation.objects.for_user(self.request.user).prefetch_related('people')
         filters = self.get_filters()
 
         if filters['sector']:

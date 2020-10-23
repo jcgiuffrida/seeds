@@ -16,7 +16,7 @@
     </h1>
     <ul class="list-group">
       {% for conversation in conversation_list %}
-        {% include 'conversations/list-item.html' with show_person=True %}
+        {% include 'conversations/list-item.html' with show_person=True show_notes=True %}
       {% empty %}
         {% if search.filtered %}
           <p>No conversations match the applied filters. <a class="btn btn-sm btn-info" href=".">Clear all filters</a></p>

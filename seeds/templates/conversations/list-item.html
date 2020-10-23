@@ -1,4 +1,6 @@
 {% load custom_tags %}
+{% load humanize %}
+
 
 <a class="list-group-item hoverable" href="{% url 'conversation_detail' conversation.pk %}">
   {% if conversation.seed %}
@@ -15,4 +17,7 @@
     <b>{{ conversation.people_str }}</b> - 
   {% endif %}
   {{ conversation.summary }}
+  {% if show_notes and conversation.notes %}
+    <p class="ml-5 mb-0 mt-1 text-muted" style="font-size: 85%">{{ conversation.notes|truncatewords:45 }}</p>
+  {% endif %}
 </a>
