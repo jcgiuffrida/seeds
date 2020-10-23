@@ -27,27 +27,34 @@ class Home(TemplateView):
 
     def get_context_data(self):
         context = super(Home, self).get_context_data()
+        
+        ONE_QUARTER_AGO = timezone.now() - timedelta(days=91)
+        ONE_YEAR_AGO = timezone.now() - timedelta(days=365)
+        THREE_YEARS_AGO = timezone.now() - timedelta(days=365.24*3)
+        EVER = timezone.now() - timedelta(days=100000)
+        
         new_people = (Person.objects.for_user(self.request.user)
                 .filter(created_on__gte=timezone.now() - timedelta(days=30))
                 .order_by('-created_on'))[:4]
         conversation_list = (Conversation.objects.for_user(self.request.user).prefetch_related('people')
                 .filter(seed=False))[:4]
-        seed_list = (Conversation.objects.for_user(self.request.user).prefetch_related('people')
-                .filter(seed=True))[:4]
-        chart_period = self.request.GET.get('period', 'week')
-        ONE_QUARTER_AGO = timezone.now() - timedelta(days=91)
-        ONE_YEAR_AGO = timezone.now() - timedelta(days=365)
-        THREE_YEARS_AGO = timezone.now() - timedelta(days=365.24*3)
-        EVER = timezone.now() - timedelta(days=100000)
+        pings = (Person.objects.for_user(self.request.user)
+                .exclude(conversations__date__gte=ONE_QUARTER_AGO)
+                .filter(conversations__date__gte=THREE_YEARS_AGO)
+                .annotate(
+                    num_conversations=Count('conversations'),
+                    last_contact=Max('conversations__date'),
+                ).order_by('-num_conversations', '-last_contact'))[:4]
+        
         orbit_quarter = Person.objects.filter(conversations__date__gte=ONE_QUARTER_AGO).distinct().count()
         orbit_year = Person.objects.filter(conversations__date__gte=ONE_YEAR_AGO).distinct().count()
         orbit_three_years = Person.objects.filter(conversations__date__gte=THREE_YEARS_AGO).distinct().count()
         orbit_ever = Person.objects.filter(conversations__date__gte=EVER).distinct().count()
         context.update({
             'conversation_list': conversation_list,
-            'seed_list': seed_list,
+            'pings': pings,
             'new_people': new_people,
-            'chart_period': chart_period,
+            'chart_period': self.request.GET.get('period', 'week'),
             'orbit_quarter': orbit_quarter,
             'orbit_year': orbit_year,
             'orbit_three_years': orbit_three_years,

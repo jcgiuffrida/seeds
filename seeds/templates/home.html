@@ -31,7 +31,7 @@
           <a class="btn btn-sm btn-info float-right" href="{% url 'person_list' %}?seeds=on">See all</a>
           Your universe
         </h4>
-        <p class="text-muted">People you've had any connection to in the recent past.</p>
+        <p class="text-muted">People you’ve had any connection to in the recent past.</p>
         <ul class="list-group list-group-flush">
           <a class="list-group-item hoverable" href="{% url 'person_list' %}?date=quarter">
             <i class="far fa-users mr-1"></i>
@@ -80,22 +80,19 @@
     <div class="card mb-3">
       <div class="card-body">
         <h4 class="card-title">
-          {% if seed_list %}
-            <a class="btn btn-sm btn-info float-right" href="{% url 'conversation_list' %}?seeds=on">See all</a>
-          {% endif %}
-          Recent seeds
+          <i class="far fa-clock mr-1"></i> Not contacted recently
         </h4>
         <h5>
           <small class="text-muted">
-            A <b>seed</b> is contacting someone to catch up, stay in touch, or set up a conversation.
+            People it may be time to reach out to.
           </small>
         </h5>
         <ul class="list-group list-group-flush">
-          {% for conversation in seed_list %}
-            {% include 'conversations/list-item.html' with show_person=True %}
+          {% for person in pings %}
+            {% include 'person/list-item.html' %}
           {% empty %}
             <p>
-              You have not recorded any seeds yet.
+              Nobody in this list.
             </p>
           {% endfor %}
         </ul>
