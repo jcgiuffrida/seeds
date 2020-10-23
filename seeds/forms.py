@@ -1,6 +1,7 @@
 """All forms live here."""
 from django import forms
 from django.utils import timezone
+from datetime import timedelta
 
 from crispy_forms.bootstrap import Tab, TabHolder
 from crispy_forms.helper import FormHelper
@@ -94,13 +95,23 @@ class ConversationForm(forms.ModelForm):
         user = kwargs.pop('user')
         assert user, 'Cannot instantiate form without a user'
         super(ConversationForm, self).__init__(*args, **kwargs)
+        is_seed = self.instance.seed if self.instance else False
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Row(
                 Field('people', wrapper_class='col-7 col-sm-8', css_class='select2-enable'),
                 Field('date', wrapper_class='col-5 col-sm-4'),
                 Field('summary', wrapper_class='col-7 col-sm-8', placeholder='Summary'),
-                Field('seed', wrapper_class='pl-4-5', css_class='col-5 col-sm-4'),
+                HTML(f'''
+                    <div class="col-5 col-sm-4 form-group">
+                        <div class="switch switch-sm mt-4-5 ml-0">
+                            <input type="checkbox" class="switch" name="seed" id="seed"
+                            {"checked" if is_seed else ""}>
+                            <label for="seed"> This is a seed</label>
+                            <small id="hint_id_seed" class="form-text text-muted">One-way (not reciprocated)</small>
+                        </div>
+                    </div>
+                '''),
                 Field('notes', wrapper_class='col-7 col-sm-8', placeholder='Notes from the conversation', rows=3),
                 Div(
                     Field('mode', css_class='select2-enable'),
@@ -122,7 +133,7 @@ class ConversationForm(forms.ModelForm):
         
         # Adjust fields
         self.fields['people'].queryset = Person.objects.for_user(user)
-        self.fields['date'].initial = timezone.now()
+        self.fields['date'].initial = timezone.now().date() - timedelta(hours=6)
         self.fields['people'].label = ''
         self.fields['mode'].label = ''
         if selected_person:

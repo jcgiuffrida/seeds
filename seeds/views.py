@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Count, Q, Value
+from django.db.models import Count, Q, Value, Max
 from django.db.models.functions import Concat
 from django.http import JsonResponse
 from django.shortcuts import redirect
@@ -35,17 +35,34 @@ class Home(TemplateView):
         seed_list = (Conversation.objects.for_user(self.request.user)
                 .filter(seed=True))[:4]
         chart_period = self.request.GET.get('period', 'week')
+        ONE_QUARTER_AGO = timezone.now() - timedelta(days=91)
+        ONE_YEAR_AGO = timezone.now() - timedelta(days=365)
+        THREE_YEARS_AGO = timezone.now() - timedelta(days=365.24*3)
+        EVER = timezone.now() - timedelta(days=100000)
+        orbit_quarter = Person.objects.filter(conversations__date__gte=ONE_QUARTER_AGO).distinct().count()
+        orbit_year = Person.objects.filter(conversations__date__gte=ONE_YEAR_AGO).distinct().count()
+        orbit_three_years = Person.objects.filter(conversations__date__gte=THREE_YEARS_AGO).distinct().count()
+        orbit_ever = Person.objects.filter(conversations__date__gte=EVER).distinct().count()
         context.update({
             'conversation_list': conversation_list,
             'seed_list': seed_list,
             'new_people': new_people,
             'chart_period': chart_period,
+            'orbit_quarter': orbit_quarter,
+            'orbit_year': orbit_year,
+            'orbit_three_years': orbit_three_years,
+            'orbit_ever': orbit_ever,
         })
         return context
 
 class About(TemplateView):
     """About page."""
     template_name = 'about.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect(reverse('home'))
+        return super().dispatch(request, *args, **kwargs)
 
 class PersonList(LoginRequiredMixin, ListView):
     """List of people."""
@@ -63,9 +80,11 @@ class PersonList(LoginRequiredMixin, ListView):
         sector = self.request.GET.get('sector')
         company = self.request.GET.get('company')
         city = self.request.GET.get('city')
+        date = self.request.GET.get('date')
 
         selected_sector = None
         selected_company = None
+        date_since = None
         
         if sector:
             try:
@@ -78,13 +97,23 @@ class PersonList(LoginRequiredMixin, ListView):
                 selected_company = Company.objects.for_user(self.request.user).get(slug=company)
             except Company.DoesNotExist:
                 pass
+
+        if date:
+            date_since = {
+                'week': timezone.now() - timedelta(days=7),
+                'month': timezone.now() - timedelta(days=30),
+                'quarter': timezone.now() - timedelta(days=91),
+                'year': timezone.now() - timedelta(days=365),
+            }.get(date)
         
         filters['sector'] = selected_sector
         filters['company'] = selected_company
         filters['city'] = city
         filters['level'] = None
+        filters['date'] = date
+        filters['date_since'] = date_since
         filters['filtered'] = any([
-            filters['sector'], filters['company'], filters['city'], filters['level'],
+            filters['sector'], filters['company'], filters['city'], filters['level'], filters['date'],
         ])
 
         self.filters = filters
@@ -92,13 +121,19 @@ class PersonList(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         """Apply filters to the queryset."""
-        qs = Person.objects.for_user(self.request.user)
+        qs = (Person.objects.for_user(self.request.user)
+            .annotate(
+                num_conversations=Count('conversations'),
+                last_contact=Max('conversations__date')
+            ).order_by('-num_conversations', 'last_name', 'first_name'))
         filters = self.get_filters()
 
         if filters['sector']:
             qs = qs.filter(sectors=filters['sector'])
         if filters['company']:
             qs = qs.filter(company=filters['company'])
+        if filters['date_since']:
+            qs = qs.filter(conversations__date__gte=filters['date_since'])
 
         if filters['city']:
             qs = qs.filter(city__iexact=filters['city'])
@@ -116,6 +151,7 @@ class PersonList(LoginRequiredMixin, ListView):
             'sectors': Sector.objects.for_user(self.request.user),
             'companies': companies,
             'cities': cities,
+            'dates': ['week', 'month', 'quarter', 'year'],
             'search': self.filters,
         })
         return context

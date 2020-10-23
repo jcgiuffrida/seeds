@@ -68,6 +68,29 @@
 
         <div class="col-sm-6 col-md-12">
           <h5 class="border-top pt-2 mt-2">
+            Last Contacted
+          </h5>
+          <input type="hidden" name="date" value="{{ search.date|default:'' }}">
+          <button type="button" data-value="" class="btn btn-sm
+            {% if not search.date %}
+              btn-secondary
+            {% else %}
+              btn-outline-info
+            {% endif %}
+            mb-2 btn-input">All</button>
+          {% for date in dates %}
+            <button type="button" data-value="{{ date }}" class="btn btn-sm
+              {% ifequal date search.date %}
+                btn-secondary
+              {% else %}
+                btn-outline-info
+              {% endifequal %}
+              mb-2 btn-input">{{ date|capfirst }}</button>
+          {% endfor %}
+        </div>
+
+        <div class="col-sm-6 col-md-12">
+          <h5 class="border-top pt-2 mt-2">
             <a href="{% url 'sector_list' %}" class="float-right text-muted"><i class="fal fa-list"></i></a>
             Sector
           </h5>

@@ -59,6 +59,9 @@ const home = (_ => {
         $div.find('button[type="submit"]')
           .removeClass('btn-outline-info')
           .addClass('btn-info');
+
+        // Submit form
+        $(this).closest('form').trigger('submit')
       })
     }
   }

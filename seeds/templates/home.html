@@ -2,6 +2,8 @@
 
 {% block title %}Home{% endblock %}
 
+{% load humanize %}
+
 {% block content %}
 <div class="row">
   <div class="col-12 mb-3">
@@ -27,19 +29,30 @@
       <div class="card-body">
         <h4 class="card-title">
           <a class="btn btn-sm btn-info float-right" href="{% url 'person_list' %}?seeds=on">See all</a>
-          Newest contacts
+          Your universe
         </h4>
+        <p class="text-muted">People you've had any connection to in the recent past.</p>
         <ul class="list-group list-group-flush">
-          {% for person in new_people %}
-            {% include 'person/list-item.html' %}
-          {% empty %}
-            <p>
-              You have not added any people in the past month.
-            </p>
-          {% endfor %}
+          <a class="list-group-item hoverable" href="{% url 'person_list' %}?date=quarter">
+            <i class="far fa-users mr-1"></i>
+            Past quarter: <b>{{ orbit_quarter|intcomma }} people</b>
+          </a>
+          <a class="list-group-item hoverable" href="{% url 'person_list' %}?date=year">
+            <i class="far fa-users mr-1"></i>
+            Past year: <b>{{ orbit_year|intcomma }} people</b>
+          </a>
+          <a class="list-group-item hoverable" href="{% url 'person_list' %}">
+            <i class="far fa-users mr-1"></i>
+            Past three years: <b>{{ orbit_three_years|intcomma }} people</b>
+          </a>
+          <a class="list-group-item hoverable" href="{% url 'person_list' %}">
+            <i class="far fa-users mr-1"></i>
+            Ever: <b>{{ orbit_ever|intcomma }} people</b>
+          </a>
         </ul>
       </div>
     </div>
+    
   </div>
 
   <div class="col-12 col-sm-7">
@@ -83,6 +96,24 @@
           {% empty %}
             <p>
               You have not recorded any seeds yet.
+            </p>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="card mb-3">
+      <div class="card-body">
+        <h4 class="card-title">
+          <a class="btn btn-sm btn-info float-right" href="{% url 'person_list' %}?seeds=on">See all</a>
+          Newest contacts
+        </h4>
+        <ul class="list-group list-group-flush">
+          {% for person in new_people %}
+            {% include 'person/list-item.html' %}
+          {% empty %}
+            <p>
+              You have not added any people in the past month.
             </p>
           {% endfor %}
         </ul>

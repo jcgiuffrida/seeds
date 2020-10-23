@@ -6,7 +6,7 @@ module.exports = (_ => {
     return new Highcharts.Chart({
       chart: {
         renderTo: $el[0],
-        type: 'area',
+        type: 'areaspline',
         height: 400,
       },
       colors: ['#6c757d', '#28a745'],
